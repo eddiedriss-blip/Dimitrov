@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { configSupabase } from "./env";
+import { configSupabase, variablesManquantes } from "./env";
 
 /** Pages accessibles sans être connecté. */
 const CHEMINS_PUBLICS = ["/connexion", "/mot-de-passe-oublie", "/reinitialiser-mot-de-passe", "/auth"];
@@ -15,6 +15,9 @@ const correspond = (chemin: string, liste: string[]) =>
  * Ce n'est qu'une première barrière : chaque page vérifie aussi le profil, et la base applique la RLS.
  */
 export async function mettreAJourSession(request: NextRequest) {
+  const manquantes = variablesManquantes();
+  if (manquantes.length) return pageNonConfiguree(manquantes);
+
   let response = NextResponse.next({ request });
 
   const { url, cle } = configSupabase();
@@ -60,4 +63,20 @@ export async function mettreAJourSession(request: NextRequest) {
   }
 
   return response;
+}
+
+/** Page explicite (au lieu d'une « Internal Server Error ») quand les variables Supabase manquent. */
+function pageNonConfiguree(manquantes: string[]) {
+  const liste = manquantes.map((m) => `<li><code>${m}</code></li>`).join("");
+  const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Application non configurée</title></head>
+<body style="font-family:system-ui,sans-serif;margin:0;background:#fff;color:#1f2937">
+<div style="background:#1d4e89;color:#fff;padding:16px 24px;font-weight:600">Logements vacants</div>
+<main style="max-width:640px;margin:40px auto;padding:0 16px">
+<h1 style="font-size:20px">Application pas encore configurée</h1>
+<p>Variables d'environnement manquantes sur le serveur :</p><ul>${liste}</ul>
+<p>Sur Vercel : <strong>Settings → Environment Variables</strong>, ajoutez-les, puis <strong>Deployments → … → Redeploy</strong>
+(un nouveau déploiement est nécessaire pour qu'elles soient prises en compte).</p>
+</main></body></html>`;
+  return new NextResponse(html, { status: 503, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }

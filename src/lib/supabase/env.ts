@@ -14,3 +14,12 @@ export const configSupabase = () => ({
   url: lire("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
   cle: lire("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
 });
+
+/** Variables manquantes (vide si tout est configuré) — pour afficher un message clair plutôt qu'une erreur 500. */
+export const variablesManquantes = () =>
+  [
+    ["NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL],
+    ["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY],
+  ]
+    .filter(([, valeur]) => !valeur)
+    .map(([nom]) => nom as string);
