@@ -75,8 +75,9 @@ function pageNonConfiguree(manquantes: string[]) {
 <main style="max-width:640px;margin:40px auto;padding:0 16px">
 <h1 style="font-size:20px">Application pas encore configurée</h1>
 <p>Variables d'environnement manquantes sur le serveur :</p><ul>${liste}</ul>
-<p>Sur Vercel : <strong>Settings → Environment Variables</strong>, ajoutez-les, puis <strong>Deployments → … → Redeploy</strong>
-(un nouveau déploiement est nécessaire pour qu'elles soient prises en compte).</p>
+<p>Sur Vercel, dans le projet : <strong>Environment Variables</strong> (barre de gauche), ajoutez-les en type
+<strong>Config</strong> en cochant l'environnement <strong>Production</strong>, puis <strong>Deployments → … → Redeploy</strong>.</p>
+<p>Un nouveau déploiement est nécessaire : un déploiement créé avant l'enregistrement des variables ne les voit pas.</p>
 </main></body></html>`;
   return new NextResponse(html, { status: 503, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
