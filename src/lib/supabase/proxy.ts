@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./env";
+import { configSupabase } from "./env";
 
 /** Pages accessibles sans être connecté. */
 const CHEMINS_PUBLICS = ["/connexion", "/mot-de-passe-oublie", "/reinitialiser-mot-de-passe", "/auth"];
@@ -17,7 +17,8 @@ const correspond = (chemin: string, liste: string[]) =>
 export async function mettreAJourSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const { url, cle } = configSupabase();
+  const supabase = createServerClient(url, cle, {
     cookies: {
       getAll() {
         return request.cookies.getAll();

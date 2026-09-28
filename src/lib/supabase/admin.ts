@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
-import { SUPABASE_URL } from "./env";
+import { configSupabase } from "./env";
 
 /**
  * Client Supabase avec la clé SECRÈTE (service_role) : réservé aux opérations
@@ -10,7 +10,7 @@ import { SUPABASE_URL } from "./env";
 export function clientAdministration() {
   const cle = process.env.SUPABASE_SECRET_KEY;
   if (!cle) return null;
-  return createClient(SUPABASE_URL, cle, { auth: { persistSession: false, autoRefreshToken: false } });
+  return createClient(configSupabase().url, cle, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
 export const cleSecreteConfiguree = () => Boolean(process.env.SUPABASE_SECRET_KEY);

@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./env";
+import { configSupabase } from "./env";
 
 /**
  * Client Supabase côté serveur (Server Components, Server Actions, Route Handlers).
@@ -10,7 +10,9 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./env";
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const { url, cle } = configSupabase();
+
+  return createServerClient(url, cle, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
