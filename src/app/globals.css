@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  /* Bleu institutionnel du bandeau et des actions principales */
+  --color-primaire: #1d4e89;
+  --color-primaire-fonce: #163c6a;
+  --color-primaire-clair: #e9f0f8;
+
+  /* Graphiques (palette validée : scripts dataviz, fond blanc) */
+  --color-serie-1: #2a78d6;
+  --color-serie-2: #eb6834;
+  --color-grille: #e1e0d9;
+  --color-axe: #c3c2b7;
+  --color-encre-attenuee: #898781;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-slate-800);
+}

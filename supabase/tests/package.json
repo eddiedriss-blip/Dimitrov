@@ -1,0 +1,7 @@
+{
+  "name": "tests-schema",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node schema.test.mjs" },
+  "devDependencies": { "embedded-postgres": "17.10.0-beta.17", "pg": "^8.13.0" }
+}
