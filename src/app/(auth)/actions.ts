@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { identifiantsModeTest } from "@/lib/auth/modeTest";
 import { cheminInterne, erreurMotDePasse, messageErreurAuth } from "@/lib/auth/validation";
 
 export type EtatFormulaire = { erreur?: string; succes?: string; email?: string } | undefined;
@@ -28,6 +29,18 @@ export async function seConnecter(_etat: EtatFormulaire, formData: FormData): Pr
     await supabase.auth.signOut({ scope: "local" });
     return { erreur: "Votre compte est désactivé. Contactez un administrateur.", email };
   }
+
+  redirect(cheminInterne(formData.get("suite")));
+}
+
+/** Mode test : connexion au compte de test partagé, sans saisie (désactivé si les variables serveur sont absentes). */
+export async function entrerModeTest(_etat: EtatFormulaire, formData: FormData): Promise<EtatFormulaire> {
+  const identifiants = identifiantsModeTest();
+  if (!identifiants) return { erreur: "Le mode test n'est pas activé." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email: identifiants.email, password: identifiants.motDePasse });
+  if (error) return { erreur: `Mode test indisponible : ${messageErreurAuth(error.code)}` };
 
   redirect(cheminInterne(formData.get("suite")));
 }
