@@ -25,6 +25,7 @@ Les droits sont appliqués à trois niveaux : le menu, la page (vérification c�
 
 ## Gestion des vacants (`/vacants`)
 
+- **N° ESI** : 5 chiffres (n° de groupe / immeuble) + `L` + 4 chiffres (n° de logement), ex. `12345L0012`. Saisie tolérante (espaces, `l` minuscule). Le **groupe est déduit** des 5 premiers chiffres ; s'il n'existe pas, la base le crée (« Groupe 12345 », à renommer dans Paramètres). Codes de groupe = 5 chiffres, non modifiables après création (migration `…_format_esi.sql`).
 - Tableau triable (clic sur l'en-tête), paginé (25/50/100), recherche générale sans accents et filtres combinables ; l'état est dans l'URL (lien partageable).
 - Recherche, filtres, tri et pagination sont faits par la base : fonction `rechercher_logements` (migration `…_gestion_vacants.sql`).
 - Créer / Modifier / Consulter / Archiver. **Pas de suppression** : un logement n'est jamais supprimé.

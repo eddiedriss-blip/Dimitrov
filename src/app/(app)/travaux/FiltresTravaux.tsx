@@ -28,7 +28,7 @@ export function FiltresTravaux({ etat, referentiels }: { etat: EtatListe; refere
             type="search"
             value={v.esi ?? ""}
             onChange={(e) => modifier("esi", e.target.value)}
-            placeholder="ex. ESI-00012"
+            placeholder="ex. 12345L0012"
             maxLength={30}
             className={classeChamp}
           />

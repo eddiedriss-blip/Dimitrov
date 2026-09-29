@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getProfil } from "@/lib/auth/profil";
 import { cheminInterne } from "@/lib/auth/validation";
+import { FORMAT_ESI, normaliserEsi } from "@/lib/logements/esi";
 import { createClient } from "@/lib/supabase/server";
 
 export type EtatEnregistrement =
@@ -12,12 +13,14 @@ export type EtatEnregistrement =
 
 const UUID = /^[0-9a-f-]{36}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const MESSAGE_FORMAT_ESI = "Format attendu : 5 chiffres, la lettre L, puis 4 chiffres (ex. 12345L0012).";
 
 /** Traduit les erreurs de la base en messages compréhensibles. */
 function messageErreurBase(erreur: { code?: string; message?: string }): string {
   const m = erreur.message ?? "";
   if (m.includes("logements_numero_esi_key")) return "Ce N° ESI existe déjà.";
   if (m.includes("logements_numero_esi_check")) return "Le N° ESI est obligatoire.";
+  if (m.includes("N° ESI invalide") || m.includes("logements_numero_esi_format")) return MESSAGE_FORMAT_ESI;
   if (m.includes("vacances_sans_chevauchement")) return "La date de libération chevauche une vacance précédente de ce logement.";
   if (m.includes("vacances_dates_coherentes")) return "La date de libération ne peut pas être postérieure à la date de location.";
   if (m.includes("Logement archivé")) return "Ce logement est loué (archivé) : il ne peut plus être modifié.";
@@ -62,13 +65,14 @@ export async function enregistrerLogement(_etat: EtatEnregistrement, formData: F
   };
 
   const id = uuid("id");
-  if (!champs.numero_esi) erreursChamps.numero_esi = "Le N° ESI est obligatoire.";
-  if (!uuid("groupe_id")) erreursChamps.groupe_id = "Choisissez un groupe.";
+  const numeroEsi = normaliserEsi(champs.numero_esi ?? "");
+  if (!numeroEsi) erreursChamps.numero_esi = "Le N° ESI est obligatoire.";
+  else if (!FORMAT_ESI.test(numeroEsi)) erreursChamps.numero_esi = MESSAGE_FORMAT_ESI;
   if (!champs.type_logement_code) erreursChamps.type_logement_code = "Choisissez un type de logement.";
 
   const logement = {
-    numero_esi: champs.numero_esi,
-    groupe_id: uuid("groupe_id"),
+    numero_esi: numeroEsi,
+    // groupe déduit du N° ESI par la base
     type_logement_code: texte("type_logement_code"),
     plafond_code: texte("plafond_code"),
     reservataire_id: uuid("reservataire_id"),

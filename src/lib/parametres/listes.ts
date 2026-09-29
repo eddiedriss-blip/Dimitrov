@@ -54,7 +54,8 @@ export const LISTES: Record<SlugListe, ConfigListe> = {
     ordre: "nom",
     usage: "logements",
     champs: [
-      { nom: "code", libelle: "Code", requis: true, max: 20, ...CODE, majuscules: true, colonne: true },
+      // N° d'immeuble = 5 premiers chiffres des N° ESI ; figé car il compose les N° ESI.
+      { nom: "code", libelle: "Code", requis: true, max: 5, motif: "^\\d{5}$", messageMotif: "5 chiffres (n° d'immeuble, début des N° ESI).", figeApresCreation: true, colonne: true },
       { nom: "nom", libelle: "Nom", requis: true, max: 120, colonne: true },
       { nom: "adresse", libelle: "Adresse", max: 200 },
       { nom: "code_postal", libelle: "Code postal", max: 5, motif: "^\\d{5}$", messageMotif: "5 chiffres." },

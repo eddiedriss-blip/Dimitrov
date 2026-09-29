@@ -94,11 +94,11 @@ check(an.rows[0].n === 0, 'anon ne voit rien');
 const ina = await as(inactif, (q) => q(`select count(*)::int n from public.statuts`));
 check(ina.rows[0].n === 0, 'utilisateur désactivé ne voit rien');
 await expectError(as(lect, (q) => q(`insert into public.reservataires (nom) values ('X')`)), /row-level security/, 'utilisateur ne peut pas créer de réservataire (paramètre admin)');
-await expectError(as(gest, (q) => q(`insert into public.groupes (code, nom) values ('G1','Les Tilleuls')`)), /row-level security/, 'utilisateur ne peut pas créer de groupe (admin seul)');
+await expectError(as(gest, (q) => q(`insert into public.groupes (code, nom) values ('10001','Les Tilleuls')`)), /row-level security/, 'utilisateur ne peut pas créer de groupe (admin seul)');
 await expectError(as(gest, (q) => q(`update public.statuts set libelle = 'X' where code = 'loue' returning code`).then((r) => { if (!r.rowCount) throw new Error('row-level security: 0 ligne'); })), /row-level security/, 'utilisateur ne peut pas modifier les statuts (paramètre admin)');
 await expectError(as(null, (q) => q(`select private.est_admin()`), 'anon'), /permission denied/, 'schéma private inaccessible à anon');
 
-const { rows: [grp] } = await as(admin, (q) => q(`insert into public.groupes (code, nom, commune) values ('G1','Les Tilleuls','Grenoble') returning id`));
+const { rows: [grp] } = await as(admin, (q) => q(`insert into public.groupes (code, nom, commune) values ('10001','Les Tilleuls','Grenoble') returning id`));
 pass('admin crée un groupe (sans secteur)');
 const { rows: [resa] } = await as(admin, (q) => q(`insert into public.reservataires (nom, categorie) values ('Préfecture 38','prefecture') returning id`));
 const { rows: [ent] } = await as(gest, (q) => q(`insert into public.entreprises (raison_sociale, siret) values ('Peinture Alpes','12345678901234') returning id`));
@@ -106,12 +106,12 @@ pass('utilisateur crée une entreprise');
 
 // ---------------------------------------------------------------- logements
 console.log('\n== Logements');
-await expectError(as(inactif, (q) => q(`insert into public.logements (numero_esi, groupe_id, type_logement_code) values ('X',$1,'T2')`, [grp.id])), /row-level security/, 'compte désactivé ne peut pas créer de logement');
+await expectError(as(inactif, (q) => q(`insert into public.logements (numero_esi, groupe_id, type_logement_code) values ('10001L0999',$1,'T2')`, [grp.id])), /row-level security/, 'compte désactivé ne peut pas créer de logement');
 const { rows: [L] } = await as(gest, (q) => q(
   `insert into public.logements (numero_esi, groupe_id, type_logement_code, plafond_code, reservataire_id, loyer, charges)
-   values ('ESI-0001', $1, 'T3', 'PLUS', $2, 450.00, 80.50) returning id, created_by`, [grp.id, resa.id]));
+   values ('10001L0001', $1, 'T3', 'PLUS', $2, 450.00, 80.50) returning id, created_by`, [grp.id, resa.id]));
 check(L.created_by === gest, 'utilisateur crée un logement (created_by = auth.uid())');
-await expectError(as(gest, (q) => q(`insert into public.logements (numero_esi, groupe_id, type_logement_code) values ('ESI-0001',$1,'T2')`, [grp.id])), /logements_numero_esi_key/, 'N° ESI unique');
+await expectError(as(gest, (q) => q(`insert into public.logements (numero_esi, groupe_id, type_logement_code) values ('10001L0001',$1,'T2')`, [grp.id])), /logements_numero_esi_key/, 'N° ESI unique');
 await expectError(as(gest, (q) => q(`update public.logements set statut_code = 'fini' where id = $1`, [L.id])), /logements_statut_fk/, 'statut de travail refusé sur un logement');
 
 const vac1 = await su((q) => q(`select * from public.vacances where logement_id = $1`, [L.id]));
@@ -180,7 +180,7 @@ console.log('\n== Photos & Storage');
 await as(gest, (q) => q(`insert into public.photos (logement_id, travail_id, storage_path) values ($1,$2,$3)`, [L.id, T1.id, `${L.id}/avant.jpg`]));
 pass('photo liée à un travail du même logement');
 await expectError(as(gest, (q) => q(`insert into public.photos (logement_id, storage_path) values ($1,'autre/x.jpg')`, [L.id])), /photos_chemin_logement/, 'chemin Storage hors dossier du logement refusé');
-const { rows: [L2] } = await as(gest, (q) => q(`insert into public.logements (numero_esi, groupe_id, type_logement_code) values ('ESI-0002',$1,'T2') returning id`, [grp.id]));
+const { rows: [L2] } = await as(gest, (q) => q(`insert into public.logements (numero_esi, groupe_id, type_logement_code) values ('10001L0002',$1,'T2') returning id`, [grp.id]));
 await expectError(as(gest, (q) => q(`insert into public.photos (logement_id, travail_id, storage_path) values ($1,$2,$3)`, [L2.id, T1.id, `${L2.id}/x.jpg`])), /photos_travail_fk/, 'photo liée au travail d\'un autre logement refusée');
 await as(gest, (q) => q(`insert into storage.objects (bucket_id, name) values ('photos-logements', $1)`, [`${L.id}/avant.jpg`]));
 pass('utilisateur dépose un fichier dans le bucket');
@@ -254,21 +254,21 @@ check(gAfter.rows[0].n === 0, 'utilisateur anonymisé n\'accède plus à rien');
 console.log('\n== Gestion des vacants : enregistrement');
 const enregistrer = (uid, id, logement, vacance = {}) =>
   as(uid, (q) => q(`select public.enregistrer_logement($1, $2, $3) as id`, [id, logement, vacance])).then((r) => r.rows[0].id);
-const { rows: [grp2] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('G2','Résidence du Parc') returning id`));
+const { rows: [grp2] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('10002','Résidence du Parc') returning id`));
 const { rows: [resa2] } = await as(admin, (q) => q(`insert into public.reservataires (nom, categorie) values ('Action Logement','action_logement') returning id`));
 const agent = lect; // compte « utilisateur » actif
 
 const idA = await enregistrer(agent, null,
-  { numero_esi: ' ESI-1001 ', groupe_id: grp2.id, type_logement_code: 'T2', plafond_code: 'PLAI', reservataire_id: resa2.id, etage: 3, surface_habitable: 48.5, loyer: 380, charges: 60, commentaire: 'Clés au gardien' },
+  { numero_esi: ' 10002l1001 ', groupe_id: grp2.id, type_logement_code: 'T2', plafond_code: 'PLAI', reservataire_id: resa2.id, etage: 3, surface_habitable: 48.5, loyer: 380, charges: 60, commentaire: 'Clés au gardien' },
   { nom_ancien_locataire: 'Chloé Lefèvre', date_preavis: '2026-08-01', date_envoi_reservataire: '2026-09-10', date_disponibilite: '2026-10-15', date_debut: '2026-09-01' });
 const vA = await as(agent, (q) => q(`select * from public.v_logements where id = $1`, [idA]));
 const a0 = vA.rows[0];
-check(a0.numero_esi === 'ESI-1001' && a0.loyer_charges === '440.00' && a0.nom_ancien_locataire === 'Chloé Lefèvre' && a0.statut_travaux === 'aucun' && a0.plafond_libelle?.startsWith('PLAI'),
+check(a0.numero_esi === '10002L1001' && a0.loyer_charges === '440.00' && a0.nom_ancien_locataire === 'Chloé Lefèvre' && a0.statut_travaux === 'aucun' && a0.plafond_libelle?.startsWith('PLAI'),
   'création logement + vacance en une transaction (ESI nettoyé, loyer+charges, ancien locataire, statut travaux)', JSON.stringify(a0));
 check(a0.date_reprise?.toISOString?.().startsWith('2026-10-1') && a0.date_liberation?.toISOString?.().startsWith('2026-0'), 'date de reprise et date de libération enregistrées sur la vacance');
-await expectError(enregistrer(agent, null, { numero_esi: '   ', groupe_id: grp2.id, type_logement_code: 'T2' }), /logements_numero_esi_check/, 'N° ESI vide refusé');
-await expectError(enregistrer(agent, null, { numero_esi: 'ESI-1001', groupe_id: grp2.id, type_logement_code: 'T2' }), /logements_numero_esi_key/, 'N° ESI en double refusé');
-await expectError(enregistrer(inactif, null, { numero_esi: 'ESI-9', groupe_id: grp2.id, type_logement_code: 'T2' }), /row-level security/, 'compte désactivé ne peut pas enregistrer');
+await expectError(enregistrer(agent, null, { numero_esi: '   ', groupe_id: grp2.id, type_logement_code: 'T2' }), /N° ESI invalide/, 'N° ESI vide refusé');
+await expectError(enregistrer(agent, null, { numero_esi: '10002L1001', groupe_id: grp2.id, type_logement_code: 'T2' }), /logements_numero_esi_key/, 'N° ESI en double refusé');
+await expectError(enregistrer(inactif, null, { numero_esi: '10002L0009', groupe_id: grp2.id, type_logement_code: 'T2' }), /row-level security/, 'compte désactivé ne peut pas enregistrer');
 
 await enregistrer(agent, idA, { ...a0, loyer: 390 }, { nom_ancien_locataire: 'Chloé Lefèvre', date_preavis: '2026-08-02', date_disponibilite: '2026-10-15' });
 const hA = await su((q) => q(`select entite, champ from public.historique where logement_id = $1 and action = 'modification' order by id`, [idA]));
@@ -284,7 +284,7 @@ console.log('\n== Gestion des vacants : recherche, filtres, tri, pagination');
 const types = ['T1', 'T2', 'T3', 'T4'];
 for (let i = 1; i <= 30; i++) {
   await enregistrer(agent, null,
-    { numero_esi: `ESI-2${String(i).padStart(3, '0')}`, groupe_id: i % 2 ? grp2.id : grp.id, type_logement_code: types[i % 4], plafond_code: i % 3 ? 'PLUS' : 'PLS',
+    { numero_esi: `${i % 2 ? '10002' : '10001'}L2${String(i).padStart(3, '0')}`, groupe_id: i % 2 ? grp2.id : grp.id, type_logement_code: types[i % 4], plafond_code: i % 3 ? 'PLUS' : 'PLS',
       reservataire_id: i % 5 ? resa2.id : null, etage: i % 6, surface_habitable: 30 + i, loyer: 300 + i * 10, charges: 50,
       statut_code: i <= 3 ? 'loue' : i % 2 ? 'a_louer' : 'travaux_a_faire' },
     { nom_ancien_locataire: i === 7 ? 'Émile Zoé' : `Locataire ${i}`, date_preavis: `2026-0${1 + (i % 9)}-15` });
@@ -303,7 +303,7 @@ check(r.total > totalVisibles, 'option « inclure les loués »');
 r = await chercher(agent, { filtres: { statut_code: 'loue' } });
 check(r.total >= 3 && r.lignes.every((l) => l.statut_code === 'loue'), 'filtre statut = Loué affiche les archivés');
 r = await chercher(agent, { recherche: 'emile zoe' });
-check(r.total === 1 && r.lignes[0].numero_esi === 'ESI-2007', 'recherche générale sans accents ni majuscules (« emile zoe » → Émile Zoé)');
+check(r.total === 1 && r.lignes[0].numero_esi === '10002L2007', 'recherche générale sans accents ni majuscules (« emile zoe » → Émile Zoé)');
 r = await chercher(agent, { recherche: 'résidence du parc' });
 check(r.total > 0 && r.lignes.every((l) => l.groupe_nom === 'Résidence du Parc'), 'recherche sur le nom du groupe');
 r = await chercher(agent, { filtres: { groupe_id: grp2.id, type_logement_code: 'T2', plafond_code: 'PLUS', statut_code: 'a_louer' } });
@@ -330,7 +330,7 @@ await expectError(as(null, (q) => q(`select public.enregistrer_logement(null, '{
 
 // ---------------------------------------------------------------- fiches travaux
 console.log('\n== Fiche travaux : progression et statut automatique');
-const idF = await enregistrer(agent, null, { numero_esi: 'ESI-FICHE', groupe_id: grp2.id, type_logement_code: 'T3', etage: 4 });
+const idF = await enregistrer(agent, null, { numero_esi: '10002L3001', groupe_id: grp2.id, type_logement_code: 'T3', etage: 4 });
 const ligneF = async () => (await as(agent, (q) => q(`select statut_code, nb_travaux, nb_travaux_finis, progression_travaux, derniere_vacance_id from public.v_logements where id = $1`, [idF]))).rows[0];
 let f = await ligneF();
 check(f.derniere_vacance_id && Number(f.nb_travaux) === 0 && f.progression_travaux === null, 'logement vacant créé → fiche travaux (vacance) créée automatiquement, 0 travaux');
@@ -371,15 +371,15 @@ const bk = await su((q) => q(`select file_size_limit, allowed_mime_types from st
 check(bk.rows[0].file_size_limit === '10485760' && bk.rows[0].allowed_mime_types.includes('image/jpeg'), 'bucket limité à 10 Mo et aux images');
 
 console.log('\n== Recherche : N° ESI et progression');
-r = await chercher(agent, { filtres: { numero_esi: 'esi-fic' } });
-check(r.total === 1 && r.lignes[0].numero_esi === 'ESI-FICHE' && r.lignes[0].progression_travaux === 100, 'filtre N° ESI (contient, sans casse) + progression dans le résultat');
+r = await chercher(agent, { filtres: { numero_esi: 'l3001' } });
+check(r.total === 1 && r.lignes[0].numero_esi === '10002L3001' && r.lignes[0].progression_travaux === 100, 'filtre N° ESI (contient, sans casse) + progression dans le résultat');
 r = await chercher(agent, { tri: 'progression_travaux', sens: 'desc', taille: 200, filtres: { inclure_loues: true } });
 const pr = r.lignes.map((l) => l.progression_travaux).filter((x) => x !== null);
 check(pr.length > 0 && pr.every((x, i) => i === 0 || pr[i - 1] >= x), 'tri par progression décroissante');
 
 // ---------------------------------------------------------------- archives
 console.log('\n== Archives : logement loué en lecture seule');
-const idX = await enregistrer(agent, null, { numero_esi: 'ESI-ARCH', groupe_id: grp2.id, type_logement_code: 'T2', loyer: 400, charges: 50 }, { nom_ancien_locataire: 'Marc Test' });
+const idX = await enregistrer(agent, null, { numero_esi: '10002L4001', groupe_id: grp2.id, type_logement_code: 'T2', loyer: 400, charges: 50 }, { nom_ancien_locataire: 'Marc Test' });
 const { rows: [tX] } = await as(agent, (q) => q(`insert into public.travaux (logement_id, libelle) values ($1, 'Peinture') returning id`, [idX]));
 await as(agent, (q) => q(`insert into public.photos (logement_id, storage_path) values ($1, $2)`, [idX, `${idX}/x.jpg`]));
 const lx = (await as(agent, (q) => q(`select * from public.v_logements where id = $1`, [idX]))).rows[0];
@@ -405,17 +405,17 @@ check(hx.rows.some((r) => r.champ === 'statut_code') && hx.rows.every((r) => r.u
   `v_historique : ${hx.rowCount} événements avec nom de l'utilisateur`);
 const auj = new Date().toISOString().slice(0, 10);
 r = await chercher(agent, { filtres: { statut_code: 'loue', date_location_du: auj, date_location_au: auj }, tri: 'date_location', sens: 'desc' });
-check(r.total >= 1 && r.lignes.every((l) => l.statut_code === 'loue') && r.lignes.some((l) => l.numero_esi === 'ESI-ARCH'), 'archives : filtre par date de location');
+check(r.total >= 1 && r.lignes.every((l) => l.statut_code === 'loue') && r.lignes.some((l) => l.numero_esi === '10002L4001'), 'archives : filtre par date de location');
 
 // ---------------------------------------------------------------- statistiques
 console.log('\n== Chiffres : statistiques (jeu de données maîtrisé)');
-const { rows: [gS] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('GSTAT','Groupe statistiques') returning id`));
+const { rows: [gS] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('10009','Groupe statistiques') returning id`));
 const vacanceDe = async (id) => (await su((q) => q(`select id from public.vacances where logement_id = $1 order by date_debut desc, created_at desc limit 1`, [id]))).rows[0].id;
 const majVac = (vid, champs) => su((q) => q(`update public.vacances set ${Object.keys(champs).map((k, i) => `${k} = $${i + 2}`).join(', ')} where id = $1`, [vid, ...Object.values(champs)]));
 const statut = (id, s) => su((q) => q(`update public.logements set statut_code = $2 where id = $1`, [id, s]));
 
 // A : vacant 10/03/2025 → loué 20/06/2025, puis de nouveau vacant depuis le 15/01/2026
-const sA = await enregistrer(agent, null, { numero_esi: 'STAT-A', groupe_id: gS.id, type_logement_code: 'T2' });
+const sA = await enregistrer(agent, null, { numero_esi: '10009L0001', groupe_id: gS.id, type_logement_code: 'T2' });
 const vA1 = await vacanceDe(sA);
 await majVac(vA1, { date_debut: '2025-03-10' });
 await statut(sA, 'loue');
@@ -423,11 +423,11 @@ await majVac(vA1, { date_fin: '2025-06-20' });
 await statut(sA, 'vacant_technique');
 await majVac(await vacanceDe(sA), { date_debut: '2026-01-15' });
 // B : vacant depuis le 01/02/2026, 2 travaux (1 commandé, 1 fini)
-const sB = await enregistrer(agent, null, { numero_esi: 'STAT-B', groupe_id: gS.id, type_logement_code: 'T2' });
+const sB = await enregistrer(agent, null, { numero_esi: '10009L0002', groupe_id: gS.id, type_logement_code: 'T2' });
 await majVac(await vacanceDe(sB), { date_debut: '2026-02-01' });
 await su((q) => q(`insert into public.travaux (logement_id, libelle, statut_code, entreprise_id) values ($1,'S1','commande',$2), ($1,'S2','fini',$2)`, [sB, ent.id]));
 // C : T4, vacant 20/12/2025 → loué 10/02/2026
-const sC = await enregistrer(agent, null, { numero_esi: 'STAT-C', groupe_id: gS.id, type_logement_code: 'T4' });
+const sC = await enregistrer(agent, null, { numero_esi: '10009L0003', groupe_id: gS.id, type_logement_code: 'T4' });
 const vC = await vacanceDe(sC);
 await majVac(vC, { date_debut: '2025-12-20' });
 await statut(sC, 'loue');
@@ -466,14 +466,14 @@ await expectError(as(null, (q) => q(`select public.statistiques(2026)`), 'anon')
 
 // ---------------------------------------------------------------- paramètres
 console.log('\n== Paramètres : listes déroulantes');
-const { rows: [gLibre] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('GLIBRE','Groupe jamais utilisé') returning id`));
+const { rows: [gLibre] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('10098','Groupe jamais utilisé') returning id`));
 await as(admin, (q) => q(`delete from public.groupes where id = $1`, [gLibre.id]));
 pass('valeur jamais utilisée : suppression permise');
 await expectError(as(admin, (q) => q(`delete from public.groupes where id = $1`, [grp2.id])), /Valeur déjà utilisée/, 'groupe utilisé par des logements : suppression refusée');
 // groupe utilisé uniquement dans l'historique (le logement a changé de groupe depuis)
-const { rows: [gHist] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('GHIST','Groupe historique') returning id`));
-const idH = await enregistrer(agent, null, { numero_esi: 'ESI-HIST', groupe_id: gHist.id, type_logement_code: 'T1' });
-await as(agent, (q) => q(`update public.logements set groupe_id = $2 where id = $1`, [idH, grp2.id]));
+const { rows: [gHist] } = await as(admin, (q) => q(`insert into public.groupes (code, nom) values ('10099','Groupe historique') returning id`));
+const idH = await enregistrer(agent, null, { numero_esi: '10099L0001', groupe_id: gHist.id, type_logement_code: 'T1' });
+await as(agent, (q) => q(`update public.logements set numero_esi = '10002L5001' where id = $1`, [idH]));
 await expectError(as(admin, (q) => q(`delete from public.groupes where id = $1`, [gHist.id])), /Valeur déjà utilisée/, 'groupe présent seulement dans l\'historique : suppression refusée');
 await as(admin, (q) => q(`update public.groupes set actif = false where id = $1`, [gHist.id]));
 pass('désactivation d\'un groupe utilisé : permise');
@@ -493,6 +493,19 @@ await expectError(as(admin, (q) => q(`update public.utilisateurs set actif = fal
 await as(admin, (q) => q(`update public.utilisateurs set role = 'admin' where id = $1`, [lect]));
 await as(admin, (q) => q(`update public.utilisateurs set role = 'utilisateur' where id = $1`, [lect]));
 pass('avec un second administrateur, les changements de rôle restent possibles');
+
+console.log('\n== Format du N° ESI et groupe déduit');
+for (const faux of ['12345-0001', '1234L0001', '12345L001', '12345X0001', 'ESI-00001', '12345L00012']) {
+  await expectError(enregistrer(agent, null, { numero_esi: faux, type_logement_code: 'T2' }), /N° ESI invalide/, `N° ESI « ${faux} » refusé`);
+}
+const idE = await enregistrer(agent, null, { numero_esi: ' 10001 l 0777 ', groupe_id: grp2.id, type_logement_code: 'T2' });
+const { rows: [lE] } = await as(agent, (q) => q(`select numero_esi, groupe_id from public.logements where id = $1`, [idE]));
+check(lE.numero_esi === '10001L0777' && lE.groupe_id === grp.id, 'N° ESI normalisé et groupe déduit des 5 premiers chiffres (le groupe choisi est ignoré)', JSON.stringify(lE));
+const idN = await enregistrer(agent, null, { numero_esi: '55555L0001', type_logement_code: 'T2' });
+const { rows: [gN] } = await as(agent, (q) => q(`select g.code, g.nom from public.logements l join public.groupes g on g.id = l.groupe_id where l.id = $1`, [idN]));
+check(gN?.code === '55555' && gN?.nom === 'Groupe 55555', 'groupe inconnu : créé automatiquement (même par un utilisateur)', JSON.stringify(gN));
+await expectError(as(admin, (q) => q(`insert into public.groupes (code, nom) values ('G77','Mauvais code')`)), /groupes_code_format/, 'code de groupe autre que 5 chiffres refusé');
+await expectError(as(admin, (q) => q(`update public.groupes set code = '66666' where id = $1`, [grp.id])), /code d'une valeur ne peut pas/, 'code d\'un groupe figé');
 
 console.log(`\n== Résultat : ${ok} OK, ${ko} échec(s)\n`);
 process.exitCode = ko ? 1 : 0;

@@ -2,10 +2,10 @@
 -- Ne jamais exécuter sur la base de production.
 
 insert into public.groupes (code, nom, adresse, code_postal, commune) values
-  ('G001', 'Les Tilleuls',       '12 rue des Tilleuls',     '38000', 'Grenoble'),
-  ('G002', 'Résidence du Parc',  '3 allée du Parc',         '38100', 'Grenoble'),
-  ('G003', 'Le Clos des Vignes', '8 chemin des Vignes',     '38400', 'Saint-Martin-d''Hères'),
-  ('G004', 'Les Terrasses',      '21 avenue Jean Jaurès',   '38600', 'Fontaine');
+  ('10001', 'Les Tilleuls',       '12 rue des Tilleuls',     '38000', 'Grenoble'),
+  ('10002', 'Résidence du Parc',  '3 allée du Parc',         '38100', 'Grenoble'),
+  ('10003', 'Le Clos des Vignes', '8 chemin des Vignes',     '38400', 'Saint-Martin-d''Hères'),
+  ('10004', 'Les Terrasses',      '21 avenue Jean Jaurès',   '38600', 'Fontaine');
 
 insert into public.reservataires (nom, categorie) values
   ('Préfecture (contingent)', 'prefecture'),
@@ -17,13 +17,13 @@ insert into public.entreprises (raison_sociale, corps_etat) values
   ('Entreprise Peinture Exemple', 'Peinture'),
   ('Plomberie Exemple',           'Plomberie');
 
--- 40 logements aux caractéristiques variées (les vacances s'ouvrent automatiquement)
+-- 40 logements aux caractéristiques variées (N° ESI au format 12345L0012) (les vacances s'ouvrent automatiquement)
 insert into public.logements
   (numero_esi, groupe_id, type_logement_code, plafond_code, reservataire_id, statut_code,
    etage, surface_habitable, loyer, charges, commentaire)
 select
-  format('ESI-%s', lpad(i::text, 5, '0')),
-  (select id from public.groupes order by code offset (i % 4) limit 1),
+  format('1000%sL%s', 1 + i % 4, lpad(i::text, 4, '0')),   -- N° ESI : groupe (5 chiffres) + L + n° de logement
+  null,                                                      -- groupe déduit du N° ESI par la base
   (array['T1','T2','T3','T4','T5'])[1 + i % 5],
   (array['PLAI','PLUS','PLUS','PLS'])[1 + i % 4],
   case when i % 6 = 0 then null

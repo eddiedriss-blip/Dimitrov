@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useRef, useState, type ReactNode } from "react";
 import { Alerte } from "@/components/formulaire";
 import { formatEuros } from "@/lib/format";
+import { codeGroupeEsi } from "@/lib/logements/esi";
 import { avecEtat, STATUTS_LOGEMENT, type LigneLogement, type Referentiels } from "@/lib/logements/types";
 import { enregistrerLogement } from "./actions";
 
@@ -15,7 +16,6 @@ function valeursInitiales(l?: LigneLogement | null): Record<string, string> {
   const t = (v: unknown) => (v === null || v === undefined ? "" : String(v));
   return {
     numero_esi: t(l?.numero_esi),
-    groupe_id: t(l?.groupe_id),
     reservataire_id: t(l?.reservataire_id),
     plafond_code: t(l?.plafond_code),
     type_logement_code: t(l?.type_logement_code),
@@ -49,6 +49,7 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
   const [loyer, setLoyer] = useState(v.loyer);
   const [charges, setCharges] = useState(v.charges);
   const [nouveauStatut, setNouveauStatut] = useState("");
+  const [esi, setEsi] = useState(v.numero_esi);
 
   // React réinitialise le formulaire après chaque envoi, mais ne réapplique pas la valeur
   // par défaut des <select> : on reconstruit donc le formulaire à chaque réponse du serveur.
@@ -66,6 +67,15 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
   })();
 
   // Changement manuel du statut d'un logement existant : confirmation avant l'envoi.
+  // Groupe déduit des 5 premiers chiffres du N° ESI (même règle que la base).
+  const codeGroupe = codeGroupeEsi(esi);
+  const groupe = codeGroupe ? referentiels.groupes.find((g) => g.code === codeGroupe) : undefined;
+  const groupeDeduit = !codeGroupe
+    ? "—"
+    : groupe
+      ? avecEtat(`${groupe.nom} (${groupe.code})`, groupe.actif)
+      : `Nouveau groupe ${codeGroupe} (créé à l'enregistrement, à nommer dans Paramètres)`;
+
   const surEnvoi = (e: React.FormEvent<HTMLFormElement>) => {
     const statut = new FormData(e.currentTarget).get("statut_code");
     if (logement && statut !== logement.statut_code && !confirme.current) {
@@ -132,8 +142,25 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
       {etat?.erreur && <Alerte type="erreur">{etat.erreur}</Alerte>}
 
       <Section titre="Logement">
-        {champ("numero_esi", "N° ESI", { required: true, maxLength: 30, autoComplete: "off" })}
-        {liste("groupe_id", "Groupe", referentiels.groupes.filter((g) => g.actif || g.id === initiales.groupe_id).map((g) => ({ valeur: g.id, libelle: avecEtat(`${g.nom} (${g.code})`, g.actif) })), "Choisir…", true)}
+        {champ(
+          "numero_esi",
+          "N° ESI",
+          {
+            required: true,
+            maxLength: 14,
+            autoComplete: "off",
+            placeholder: "12345L0012",
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setEsi(e.target.value),
+          },
+          "5 chiffres (groupe), la lettre L, puis 4 chiffres (logement).",
+        )}
+        <div>
+          <span className="mb-1 block text-sm font-medium text-slate-700">Groupe</span>
+          <output htmlFor="numero_esi" className="block rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900">
+            {groupeDeduit}
+          </output>
+          <p className="mt-1 text-xs text-slate-500">Déduit des 5 premiers chiffres du N° ESI.</p>
+        </div>
         {liste("type_logement_code", "Type de logement", referentiels.types.filter((t) => t.actif || t.code === initiales.type_logement_code).map((t) => ({ valeur: t.code, libelle: avecEtat(t.libelle, t.actif) })), "Choisir…", true)}
         {liste("statut_code", "Statut du logement", STATUTS_LOGEMENT.map((s) => ({ valeur: s.code, libelle: s.libelle })), null)}
         {liste("reservataire_id", "Réservataire", referentiels.reservataires.filter((r) => r.actif || r.id === initiales.reservataire_id).map((r) => ({ valeur: r.id, libelle: avecEtat(r.nom, r.actif) })), "Aucun")}
