@@ -94,8 +94,13 @@ export default async function PageAccueil({ searchParams }: PageProps<"/">) {
               <li key={l.id}>
                 <Link href={`/vacants/${l.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-slate-50">
                   <span className="min-w-[7.5rem] font-semibold text-slate-900">{l.numero_esi}</span>
-                  <span className="min-w-0 flex-1 truncate text-sm text-slate-600">
-                    {l.groupe_nom} · porte {l.porte ?? "—"} · {l.type_logement_code}
+                  <span className="min-w-0 flex-1 truncate text-sm">
+                    {l.nom_ancien_locataire ? (
+                      <span className="font-bold text-slate-900">{l.nom_ancien_locataire}</span>
+                    ) : (
+                      <span className="text-slate-400">Ancien locataire non renseigné</span>
+                    )}
+                    <span className="text-slate-500"> · {l.type_logement_code}</span>
                   </span>
                   <span className="text-xs text-slate-500">libéré le {formatDate(l.date_liberation)}</span>
                   <span className="flex gap-2">

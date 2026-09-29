@@ -22,7 +22,12 @@ const COLONNES: Colonne[] = [
   { tri: "envoi", libelle: "Envoi au réservataire", cellule: (l) => formatDate(l.date_envoi_reservataire) },
   { tri: "reprise", libelle: "Date de reprise", cellule: (l) => formatDate(l.date_reprise) },
   { tri: "plafond", libelle: "Plafond", cellule: (l) => l.plafond_code ?? "—" },
-  { tri: "locataire", libelle: "Ancien locataire", cellule: (l) => l.nom_ancien_locataire ?? "—" },
+  {
+    tri: "locataire",
+    libelle: "Ancien locataire",
+    // En gras : repère principal pour retrouver un logement
+    cellule: (l) => (l.nom_ancien_locataire ? <span className="font-bold text-slate-900">{l.nom_ancien_locataire}</span> : "—"),
+  },
   { tri: "type", libelle: "Type", cellule: (l) => l.type_logement_code },
   { tri: "etage", libelle: "Étage", nombre: true, cellule: (l) => formatEtage(l.etage) },
   { tri: "surface", libelle: "Surface", nombre: true, cellule: (l) => formatSurface(l.surface_habitable) },
@@ -181,6 +186,7 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
               </Link>
               <BadgeStatutLogement code={l.statut_code} />
             </div>
+            {l.nom_ancien_locataire && <p className="mt-1 text-sm font-bold text-slate-900">{l.nom_ancien_locataire}</p>}
             <p className="mt-1 text-sm text-slate-600">
               {l.groupe_nom} · porte {l.porte ?? "—"} · {l.type_logement_code} · étage {formatEtage(l.etage)} · {formatSurface(l.surface_habitable)}
             </p>
