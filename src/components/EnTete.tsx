@@ -21,22 +21,22 @@ export function EnTete({ menu, utilisateur }: Props) {
 
   return (
     <header className="sticky top-0 z-30">
-      {/* Bandeau bleu */}
-      <div className="bg-primaire text-white">
+      {/* Bandeau blanc avec le logo, liseré flamme */}
+      <div className="bg-white text-anthracite">
         <div className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-            <Logo variante="blanc" />
+          <Link href="/" aria-label="Accueil" className="rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primaire">
+            <Logo />
           </Link>
 
           <div className="hidden items-center gap-4 md:flex">
             <div className="text-right text-sm leading-tight">
               <div className="font-medium">{utilisateur.nom}</div>
-              <div className="text-white/75">{utilisateur.role}</div>
+              <div className="text-stone-500">{utilisateur.role}</div>
             </div>
             <form action={seDeconnecter}>
               <button
                 type="submit"
-                className="rounded-md border border-white/40 px-3 py-1.5 text-sm font-medium transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+                className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 transition hover:border-primaire hover:text-primaire focus-visible:outline-2 focus-visible:outline-primaire"
               >
                 Se déconnecter
               </button>
@@ -45,7 +45,7 @@ export function EnTete({ menu, utilisateur }: Props) {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-anthracite hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-primaire md:hidden"
             aria-expanded={menuOuvert}
             aria-controls="menu-mobile"
             aria-label={menuOuvert ? "Fermer le menu" : "Ouvrir le menu"}
@@ -56,10 +56,11 @@ export function EnTete({ menu, utilisateur }: Props) {
             </svg>
           </button>
         </div>
+        <div aria-hidden="true" className="h-1 bg-gradient-to-r from-primaire via-flamme to-soleil" />
       </div>
 
-      {/* Menu ordinateur / tablette */}
-      <nav aria-label="Navigation principale" className="hidden border-b border-slate-200 bg-white md:block">
+      {/* Menu ordinateur / tablette : barre anthracite */}
+      <nav aria-label="Navigation principale" className="hidden bg-anthracite shadow-sm md:block">
         <ul className="mx-auto flex max-w-screen-2xl gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
           {menu.map((e) => {
             const actif = estActif(chemin, e.href);
@@ -68,10 +69,10 @@ export function EnTete({ menu, utilisateur }: Props) {
                 <Link
                   href={e.href}
                   aria-current={actif ? "page" : undefined}
-                  className={`block whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition ${
+                  className={`block whitespace-nowrap border-b-[3px] px-3 py-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-soleil ${
                     actif
-                      ? "border-primaire text-primaire"
-                      : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                      ? "border-flamme text-white"
+                      : "border-transparent text-stone-300 hover:border-stone-500 hover:text-white"
                   }`}
                 >
                   {e.libelle}

@@ -71,7 +71,7 @@ function pageNonConfiguree(manquantes: string[]) {
   const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Application non configurée</title></head>
 <body style="font-family:system-ui,sans-serif;margin:0;background:#fff;color:#1f2937">
-<div style="background:#1d4e89;color:#fff;padding:16px 24px;font-weight:600">Logements vacants</div>
+<div style="background:#1c1917;color:#fff;padding:16px 24px;font-weight:600;border-bottom:4px solid #f97316">Secteur 1</div>
 <main style="max-width:640px;margin:40px auto;padding:0 16px">
 <h1 style="font-size:20px">Application pas encore configurée</h1>
 <p>Variables d'environnement manquantes sur le serveur :</p><ul>${liste}</ul>

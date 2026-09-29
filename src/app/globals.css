@@ -1,14 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Bleu institutionnel du bandeau et des actions principales */
-  --color-primaire: #1d4e89;
-  --color-primaire-fonce: #163c6a;
-  --color-primaire-clair: #e9f0f8;
+  /* Identité « Secteur 1 » (d'après le logo) : orange flamme + anthracite.
+     Orange foncé pour les actions : texte blanc lisible (contraste 5,2:1). */
+  --color-primaire: #c2410c;
+  --color-primaire-fonce: #9a3412;
+  --color-primaire-clair: #fff1e8;
+  --color-anthracite: #1c1917;
+  --color-flamme: #f97316;
+  --color-soleil: #fbbf24;
 
-  /* Graphiques (palette validée : scripts dataviz, fond blanc) */
-  --color-serie-1: #2a78d6;
-  --color-serie-2: #eb6834;
+  /* Graphiques : orange du logo + anthracite (luminances très différentes : lisibles en daltonisme) */
+  --color-serie-1: #e8590c;
+  --color-serie-2: #57534e;
   --color-grille: #e1e0d9;
   --color-axe: #c3c2b7;
   --color-encre-attenuee: #898781;
