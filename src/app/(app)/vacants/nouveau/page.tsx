@@ -16,13 +16,8 @@ export default async function PageNouveauLogement() {
         </Link>
       </p>
       <TitrePage titre="Créer un logement" description="Les champs marqués * sont obligatoires." />
-      {!referentiels.groupes.some((g) => g.actif) ? (
-        <p className="rounded-md border border-orange-200 bg-orange-50 px-4 py-3 text-sm text-orange-900">
-          Aucun groupe n&apos;est encore enregistré. Un administrateur doit d&apos;abord créer les groupes dans les Paramètres.
-        </p>
-      ) : (
-        <FormulaireLogement referentiels={referentiels} />
-      )}
+      {/* Pas de prérequis : le groupe est déduit du N° ESI (et créé s'il n'existe pas). */}
+      <FormulaireLogement referentiels={referentiels} />
     </>
   );
 }
