@@ -43,6 +43,10 @@ export default async function PageTravaux({ searchParams }: PageProps<"/travaux"
                 <p className="mt-1 text-sm text-slate-600">{l.groupe_nom}</p>
                 <dl className="mt-3 flex gap-6 text-sm">
                   <div>
+                    <dt className="text-xs text-slate-500">Porte</dt>
+                    <dd className="font-medium text-slate-900">{l.porte ?? "—"}</dd>
+                  </div>
+                  <div>
                     <dt className="text-xs text-slate-500">Étage</dt>
                     <dd className="font-medium text-slate-900">{formatEtage(l.etage)}</dd>
                   </div>

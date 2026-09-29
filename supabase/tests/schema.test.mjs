@@ -499,7 +499,13 @@ for (const faux of ['12345-0001', '1234L0001', '12345L001', '12345X0001', 'ESI-0
   await expectError(enregistrer(agent, null, { numero_esi: faux, type_logement_code: 'T2' }), /N° ESI invalide/, `N° ESI « ${faux} » refusé`);
 }
 const idE = await enregistrer(agent, null, { numero_esi: ' 10001 l 0777 ', groupe_id: grp2.id, type_logement_code: 'T2' });
-const { rows: [lE] } = await as(agent, (q) => q(`select numero_esi, groupe_id from public.logements where id = $1`, [idE]));
+const { rows: [lE] } = await as(agent, (q) => q(`select numero_esi, groupe_id, porte from public.logements where id = $1`, [idE]));
+check(lE.porte === '777', 'porte déduite des 4 derniers chiffres (0777 → 777)', JSON.stringify(lE));
+await as(agent, (q) => q(`update public.logements set porte = '12' where id = $1`, [idE]));
+const { rows: [lE2] } = await as(agent, (q) => q(`select porte from public.logements where id = $1`, [idE]));
+check(lE2.porte === '777', 'porte non modifiable à la main (toujours celle du N° ESI)', JSON.stringify(lE2));
+const idP = await enregistrer(agent, null, { numero_esi: '10001L0001', type_logement_code: 'T2' }).catch(() => null);
+check(idP === null, 'N° ESI déjà utilisé plus haut (10001L0001) : doublon refusé');
 check(lE.numero_esi === '10001L0777' && lE.groupe_id === grp.id, 'N° ESI normalisé et groupe déduit des 5 premiers chiffres (le groupe choisi est ignoré)', JSON.stringify(lE));
 const idN = await enregistrer(agent, null, { numero_esi: '55555L0001', type_logement_code: 'T2' });
 const { rows: [gN] } = await as(agent, (q) => q(`select g.code, g.nom from public.logements l join public.groupes g on g.id = l.groupe_id where l.id = $1`, [idN]));

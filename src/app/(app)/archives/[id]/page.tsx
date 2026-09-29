@@ -8,6 +8,7 @@ import { Alerte } from "@/components/formulaire";
 import { Historique } from "@/components/Historique";
 import { ListeTravaux } from "@/components/travaux/ListeTravaux";
 import { Photos } from "@/components/travaux/Photos";
+import { estAdmin, getProfil } from "@/lib/auth/profil";
 import { formatDate, formatEuros } from "@/lib/format";
 import { getEvenements } from "@/lib/historique/donnees";
 import { getLogement, getVacances } from "@/lib/logements/donnees";
@@ -26,7 +27,8 @@ export default async function PageArchive({ params, searchParams }: PageProps<"/
   const { logement: l, travaux, photos } = fiche;
   if (!l.archive) redirect(`/vacants/${l.id}`);
 
-  const [vacances, evenements] = await Promise.all([getVacances(l.id), getEvenements(l.id)]);
+  const [vacances, evenements, profil] = await Promise.all([getVacances(l.id), getEvenements(l.id), getProfil()]);
+  const admin = estAdmin(profil);
   const finis = travaux.filter((t) => t.statut_code === "fini").length;
 
   return (
@@ -37,23 +39,42 @@ export default async function PageArchive({ params, searchParams }: PageProps<"/
         </Link>
       </p>
 
+      {(info === "modifie" || info === "cree") && (
+        <div className="mb-4">
+          <Alerte type="succes">{info === "cree" ? "Logement créé (statut « Loué » : il est rangé dans les Archives)." : "Modifications enregistrées."}</Alerte>
+        </div>
+      )}
       {info === "archive" && (
         <div className="mb-4">
           <Alerte type="succes">Logement loué : il a été déplacé dans les Archives.</Alerte>
         </div>
       )}
 
-      <div className="mb-6 border-b border-slate-200 pb-4">
-        <h1 className="flex flex-wrap items-center gap-3 text-2xl font-semibold text-slate-900">
-          Logement {l.numero_esi} <BadgeStatutLogement code={l.statut_code} />
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          {l.groupe_nom} ({l.groupe_code}) · loué le {formatDate(l.date_location)}
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-slate-200 pb-4">
+        <div>
+          <h1 className="flex flex-wrap items-center gap-3 text-2xl font-semibold text-slate-900">
+            Logement {l.numero_esi} <BadgeStatutLogement code={l.statut_code} />
+          </h1>
+          <p className="mt-1 text-sm text-slate-600">
+            {l.groupe_nom} ({l.groupe_code}) · porte {l.porte ?? "—"} · loué le {formatDate(l.date_location)}
+          </p>
+        </div>
+        {admin && (
+          <Link
+            href={`/vacants/${l.id}/modifier`}
+            className="inline-flex items-center justify-center rounded-md bg-primaire px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primaire-fonce"
+          >
+            Modifier
+          </Link>
+        )}
       </div>
 
       <div className="mb-6">
-        <Alerte type="info">Logement archivé : consultation seule. Les informations, travaux, photos et l&apos;historique sont conservés tels quels.</Alerte>
+        <Alerte type="info">
+          {admin
+            ? "Logement archivé : en tant qu'administrateur, vous pouvez le modifier ou le remettre en vacance (bouton « Modifier », puis changer le statut)."
+            : "Logement archivé : consultation seule. Seul un administrateur peut le modifier ou le remettre en vacance."}
+        </Alerte>
       </div>
 
       <div className="space-y-6">

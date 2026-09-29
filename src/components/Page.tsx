@@ -17,12 +17,3 @@ export function TitrePage({
     </div>
   );
 }
-
-/** Emplacement provisoire tant que le contenu de la page n'est pas développé. */
-export function ContenuAVenir() {
-  return (
-    <div className="rounded-lg border border-dashed border-slate-300 px-6 py-12 text-center text-sm text-slate-500">
-      Contenu à venir.
-    </div>
-  );
-}

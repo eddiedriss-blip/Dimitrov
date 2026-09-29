@@ -81,7 +81,7 @@ export async function enregistrerLogement(_etat: EtatEnregistrement, formData: F
     batiment: texte("batiment"),
     escalier: texte("escalier"),
     etage: entier("etage"),
-    porte: texte("porte"),
+    // porte déduite du N° ESI par la base
     surface_habitable: decimal("surface_habitable", "Surface"),
     loyer: decimal("loyer", "Loyer"),
     charges: decimal("charges", "Charges"),
@@ -108,7 +108,10 @@ export async function enregistrerLogement(_etat: EtatEnregistrement, formData: F
   if (error) return { erreur: messageErreurBase(error), champs };
 
   revalidatePath("/vacants");
-  redirect(`/vacants/${data as string}?info=${id ? "modifie" : "cree"}`);
+  revalidatePath("/archives");
+  // Un logement qui reste (ou devient) « Loué » est affiché dans les Archives.
+  const fiche = logement.statut_code === "loue" ? "/archives" : "/vacants";
+  redirect(`${fiche}/${data as string}?info=${id ? "modifie" : "cree"}`);
 }
 
 /** « Travaux finis » → « À louer » (uniquement depuis « Travaux finis »). */

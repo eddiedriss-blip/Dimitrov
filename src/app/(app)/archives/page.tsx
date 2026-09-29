@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { TitrePage } from "@/components/Page";
 import { Pagination } from "@/components/Pagination";
+import { estAdmin, getProfil } from "@/lib/auth/profil";
 import { formatDate, formatEtage, formatEuros, formatSurface } from "@/lib/format";
 import { chargerReferentiels, rechercherLogements } from "@/lib/logements/donnees";
 import { lireEtat, versUrl, type CleTri, type EtatListe } from "@/lib/logements/recherche";
@@ -12,7 +13,8 @@ import { FiltresArchives } from "./FiltresArchives";
 
 export const metadata: Metadata = { title: "Archives" };
 
-const COLONNES: { tri: CleTri; libelle: string; nombre?: boolean; cellule: (l: LigneLogement) => ReactNode }[] = [
+const COLONNES: { tri?: CleTri; libelle: string; nombre?: boolean; cellule: (l: LigneLogement) => ReactNode }[] = [
+  { libelle: "Porte", nombre: true, cellule: (l) => l.porte ?? "—" },
   { tri: "groupe", libelle: "Groupe", cellule: (l) => l.groupe_nom },
   { tri: "reservataire", libelle: "Réservataire", cellule: (l) => l.reservataire_nom ?? "—" },
   { tri: "type", libelle: "Type", cellule: (l) => l.type_logement_code },
@@ -46,17 +48,23 @@ function EnTete({ etat, tri, libelle, nombre, sticky }: { etat: EtatListe; tri: 
 export default async function PageArchives({ searchParams }: PageProps<"/archives">) {
   const etat = lireEtat(await searchParams);
   // Archives = logements loués uniquement (filtre imposé, absent de l'URL)
-  const [resultat, referentiels] = await Promise.all([
+  const [resultat, referentiels, profil] = await Promise.all([
     rechercherLogements({ ...etat, filtres: { ...etat.filtres, statut: "loue" } }),
     chargerReferentiels(),
+    getProfil(),
   ]);
+  const admin = estAdmin(profil);
 
   const derniere = Math.max(1, Math.ceil(resultat.total / etat.taille));
   if (etat.page > derniere) redirect(`/archives${versUrl(etat, { page: derniere })}`);
 
   return (
     <>
-      <TitrePage titre="Archives" description="Logements loués : toutes leurs informations sont conservées et consultables, sans modification possible." />
+      <TitrePage titre="Archives" description={
+          admin
+            ? "Logements loués : toutes leurs informations sont conservées. En tant qu'administrateur, vous pouvez les modifier ou les remettre en vacance."
+            : "Logements loués : toutes leurs informations sont conservées et consultables. Seul un administrateur peut les modifier."
+        } />
       <FiltresArchives etat={etat} referentiels={referentiels} />
 
       {resultat.lignes.length === 0 ? (
@@ -70,7 +78,13 @@ export default async function PageArchives({ searchParams }: PageProps<"/archive
                 <tr>
                   <EnTete etat={etat} tri="esi" libelle="N° ESI" sticky />
                   {COLONNES.map((c) => (
-                    <EnTete key={c.tri} etat={etat} tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
+                    c.tri ? (
+                      <EnTete key={c.libelle} etat={etat} tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
+                    ) : (
+                      <th key={c.libelle} scope="col" className={`whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-600 ${c.nombre ? "text-right" : "text-left"}`}>
+                        {c.libelle}
+                      </th>
+                    )
                   ))}
                   <th scope="col" className="border-b border-slate-200 bg-slate-50 px-3 py-2.5">
                     <span className="sr-only">Actions</span>
@@ -86,7 +100,7 @@ export default async function PageArchives({ searchParams }: PageProps<"/archive
                       </Link>
                     </th>
                     {COLONNES.map((c) => (
-                      <td key={c.tri} className={`whitespace-nowrap border-b border-slate-100 px-3 py-2 text-slate-700 group-hover:bg-slate-50 ${c.nombre ? "text-right tabular-nums" : ""}`}>
+                      <td key={c.libelle} className={`whitespace-nowrap border-b border-slate-100 px-3 py-2 text-slate-700 group-hover:bg-slate-50 ${c.nombre ? "text-right tabular-nums" : ""}`}>
                         {c.cellule(l)}
                       </td>
                     ))}
@@ -94,6 +108,11 @@ export default async function PageArchives({ searchParams }: PageProps<"/archive
                       <Link href={`/archives/${l.id}`} className="rounded px-1.5 py-1 text-sm font-medium text-primaire hover:bg-primaire-clair">
                         Consulter
                       </Link>
+                      {admin && (
+                        <Link href={`/vacants/${l.id}/modifier`} className="rounded px-1.5 py-1 text-sm font-medium text-primaire hover:bg-primaire-clair">
+                          Modifier
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -110,7 +129,7 @@ export default async function PageArchives({ searchParams }: PageProps<"/archive
                     <span className="text-xs text-slate-500">Loué le {formatDate(l.date_location)}</span>
                   </div>
                   <p className="mt-1 text-sm text-slate-600">
-                    {l.groupe_nom} · {l.type_logement_code} · {formatEuros(l.loyer_charges)}
+                    {l.groupe_nom} · porte {l.porte ?? "—"} · {l.type_logement_code} · {formatEuros(l.loyer_charges)}
                   </p>
                   <p className="mt-1 text-xs text-slate-500">
                     {l.reservataire_nom ?? "Sans réservataire"} · vacance de {l.duree_derniere_vacance_jours ?? "—"} j

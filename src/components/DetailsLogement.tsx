@@ -30,13 +30,14 @@ export function DetailsLogement({ l }: { l: LigneLogement }) {
       <Bloc titre="Logement">
         <Info libelle="N° ESI">{l.numero_esi}</Info>
         <Info libelle="Groupe">{l.groupe_nom}</Info>
+        <Info libelle="Porte">{l.porte}</Info>
         <Info libelle="Type de logement">{l.type_logement_libelle}</Info>
         <Info libelle="Réservataire">{l.reservataire_nom}</Info>
         <Info libelle="Plafond">{l.plafond_libelle}</Info>
         <Info libelle="Étage">{formatEtage(l.etage)}</Info>
         <Info libelle="Surface habitable">{formatSurface(l.surface_habitable)}</Info>
         <Info libelle="Adresse">{l.adresse}</Info>
-        <Info libelle="Bâtiment / escalier / porte">{[l.batiment, l.escalier, l.porte].filter(Boolean).join(" / ") || null}</Info>
+        <Info libelle="Bâtiment / escalier">{[l.batiment, l.escalier].filter(Boolean).join(" / ") || null}</Info>
       </Bloc>
 
       <Bloc titre="Loyer">

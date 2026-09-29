@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useRef, useState, type ReactNode } from "react";
 import { Alerte } from "@/components/formulaire";
 import { formatEuros } from "@/lib/format";
-import { codeGroupeEsi } from "@/lib/logements/esi";
+import { codeGroupeEsi, porteEsi } from "@/lib/logements/esi";
 import { avecEtat, STATUTS_LOGEMENT, type LigneLogement, type Referentiels } from "@/lib/logements/types";
 import { enregistrerLogement } from "./actions";
 
@@ -24,7 +24,6 @@ function valeursInitiales(l?: LigneLogement | null): Record<string, string> {
     batiment: t(l?.batiment),
     escalier: t(l?.escalier),
     etage: t(l?.etage),
-    porte: t(l?.porte),
     surface_habitable: t(l?.surface_habitable),
     loyer: t(l?.loyer),
     charges: t(l?.charges),
@@ -152,14 +151,14 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
             placeholder: "12345L0012",
             onChange: (e: React.ChangeEvent<HTMLInputElement>) => setEsi(e.target.value),
           },
-          "5 chiffres (groupe), la lettre L, puis 4 chiffres (logement).",
+          "5 chiffres (groupe), la lettre L, puis 4 chiffres (n° de porte).",
         )}
         <div>
           <span className="mb-1 block text-sm font-medium text-slate-700">Groupe</span>
           <output htmlFor="numero_esi" className="block rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900">
             {groupeDeduit}
           </output>
-          <p className="mt-1 text-xs text-slate-500">Déduit des 5 premiers chiffres du N° ESI.</p>
+          <p className="mt-1 text-xs text-slate-500">Déduit des 5 premiers chiffres du N° ESI (la porte, des 4 derniers).</p>
         </div>
         {liste("type_logement_code", "Type de logement", referentiels.types.filter((t) => t.actif || t.code === initiales.type_logement_code).map((t) => ({ valeur: t.code, libelle: avecEtat(t.libelle, t.actif) })), "Choisir…", true)}
         {liste("statut_code", "Statut du logement", STATUTS_LOGEMENT.map((s) => ({ valeur: s.code, libelle: s.libelle })), null)}
@@ -169,7 +168,12 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
         <div className="grid grid-cols-3 gap-3">
           {champ("batiment", "Bâtiment", { maxLength: 20 })}
           {champ("escalier", "Escalier", { maxLength: 20 })}
-          {champ("porte", "Porte", { maxLength: 20 })}
+          <div>
+            <span className="mb-1 block text-sm font-medium text-slate-700">Porte</span>
+            <output htmlFor="numero_esi" className="block rounded-md border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900">
+              {porteEsi(esi) ?? "—"}
+            </output>
+          </div>
         </div>
         {champ("etage", "Étage", { type: "number", step: 1, inputMode: "numeric" }, "0 = rez-de-chaussée")}
         {champ("surface_habitable", "Surface habitable (m²)", { type: "number", min: 0, step: "0.01", inputMode: "decimal" })}

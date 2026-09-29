@@ -25,7 +25,7 @@ Les droits sont appliqués à trois niveaux : le menu, la page (vérification c�
 
 ## Gestion des vacants (`/vacants`)
 
-- **N° ESI** : 5 chiffres (n° de groupe / immeuble) + `L` + 4 chiffres (n° de logement), ex. `12345L0012`. Saisie tolérante (espaces, `l` minuscule). Le **groupe est déduit** des 5 premiers chiffres ; s'il n'existe pas, la base le crée (« Groupe 12345 », à renommer dans Paramètres). Codes de groupe = 5 chiffres, non modifiables après création (migration `…_format_esi.sql`).
+- **N° ESI** : 5 chiffres (n° de groupe / immeuble) + `L` + 4 chiffres (n° de porte), ex. `12345L0273` = porte 273. Saisie tolérante (espaces, `l` minuscule). Le **groupe** est déduit des 5 premiers chiffres et la **porte** des 4 derniers (plus de saisie, migration `…_porte_esi.sql`) ; s'il n'existe pas, la base le crée (« Groupe 12345 », à renommer dans Paramètres). Codes de groupe = 5 chiffres, non modifiables après création (migration `…_format_esi.sql`).
 - Tableau triable (clic sur l'en-tête), paginé (25/50/100), recherche générale sans accents et filtres combinables ; l'état est dans l'URL (lien partageable).
 - Recherche, filtres, tri et pagination sont faits par la base : fonction `rechercher_logements` (migration `…_gestion_vacants.sql`).
 - Créer / Modifier / Consulter / Archiver. **Pas de suppression** : un logement n'est jamais supprimé.
@@ -45,6 +45,7 @@ Les droits sont appliqués à trois niveaux : le menu, la page (vérification c�
 
 - **Passer à louer** : bouton visible uniquement au statut « Travaux finis » (fiche logement, fiche travaux, tableau), avec confirmation.
 - **Loué = archivé** : le logement disparaît des listes de travail et toute page le concernant (Consulter, Modifier, Fiche travaux) renvoie vers `/archives/[id]`. Rien n'est supprimé.
+- **Administrateurs** : bouton « Modifier » sur les archives (liste et fiche) ; changer le statut remet le logement en vacance (nouvelle vacance).
 - **Lecture seule garantie par la base** (migration `…_archives_historique.sql`) : pour un utilisateur, un logement loué, ses vacances, travaux et photos ne peuvent plus être modifiés. Seuls les automatismes (clôture de la vacance) et les administrateurs peuvent encore écrire.
 - Liste : recherche générale, filtres groupe / réservataire / type / période de location, tri, pagination.
 - Fiche d'archive : toutes les informations, vacances successives (durée, travaux, montants), travaux et photos de la dernière vacance (galerie sans modification), historique.

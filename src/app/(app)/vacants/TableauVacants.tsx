@@ -8,13 +8,15 @@ import { BoutonALouer } from "@/components/BoutonALouer";
 import { BoutonArchiver } from "./BoutonArchiver";
 
 type Colonne = {
-  tri: CleTri;
+  /** Absent : colonne non triable. */
+  tri?: CleTri;
   libelle: string;
   nombre?: boolean;
   cellule: (l: LigneLogement) => ReactNode;
 };
 
 const COLONNES: Colonne[] = [
+  { libelle: "Porte", nombre: true, cellule: (l) => l.porte ?? "—" },
   { tri: "groupe", libelle: "Groupe", cellule: (l) => <span title={l.groupe_code}>{l.groupe_nom}</span> },
   { tri: "reservataire", libelle: "Réservataire", cellule: (l) => l.reservataire_nom ?? "—" },
   { tri: "envoi", libelle: "Envoi au réservataire", cellule: (l) => formatDate(l.date_envoi_reservataire) },
@@ -48,6 +50,14 @@ const COLONNES: Colonne[] = [
       ),
   },
 ];
+
+function EnTeteFixe({ libelle, nombre }: { libelle: string; nombre?: boolean }) {
+  return (
+    <th scope="col" className={`whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-600 ${nombre ? "text-right" : "text-left"}`}>
+      {libelle}
+    </th>
+  );
+}
 
 function EnTeteTri({ etat, tri, libelle, nombre, sticky }: { etat: EtatListe; tri: CleTri; libelle: string; nombre?: boolean; sticky?: boolean }) {
   const actif = etat.tri === tri;
@@ -122,7 +132,11 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
             <tr>
               <EnTeteTri etat={etat} tri="esi" libelle="N° ESI" sticky />
               {COLONNES.map((c) => (
-                <EnTeteTri key={c.tri} etat={etat} tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
+                c.tri ? (
+                  <EnTeteTri key={c.libelle} etat={etat} tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
+                ) : (
+                  <EnTeteFixe key={c.libelle} libelle={c.libelle} nombre={c.nombre} />
+                )
               ))}
               <th scope="col" className="sticky right-0 z-10 border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-right text-xs font-semibold text-slate-600">
                 Actions
@@ -142,7 +156,7 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
                 </th>
                 {COLONNES.map((c) => (
                   <td
-                    key={c.tri}
+                    key={c.libelle}
                     className={`whitespace-nowrap border-b border-slate-100 px-3 py-2 text-slate-700 group-hover:bg-slate-50 ${c.nombre ? "text-right tabular-nums" : ""}`}
                   >
                     {c.cellule(l)}
@@ -168,7 +182,7 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
               <BadgeStatutLogement code={l.statut_code} />
             </div>
             <p className="mt-1 text-sm text-slate-600">
-              {l.groupe_nom} · {l.type_logement_code} · étage {formatEtage(l.etage)} · {formatSurface(l.surface_habitable)}
+              {l.groupe_nom} · porte {l.porte ?? "—"} · {l.type_logement_code} · étage {formatEtage(l.etage)} · {formatSurface(l.surface_habitable)}
             </p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div>
