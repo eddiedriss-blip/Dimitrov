@@ -23,7 +23,7 @@ export function EnTete({ menu, utilisateur }: Props) {
     <header className="sticky top-0 z-30">
       {/* Bandeau blanc avec le logo, liseré flamme */}
       <div className="bg-white text-anthracite">
-        <div className="mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 sm:h-[4.5rem] max-w-screen-2xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <Link href="/" aria-label="Accueil" className="rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primaire">
             <Logo />
           </Link>

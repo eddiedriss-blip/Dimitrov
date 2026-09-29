@@ -10,7 +10,7 @@ export function Logo({ taille = "normal" }: { taille?: "normal" | "grand" }) {
       height={689}
       priority
       sizes={taille === "grand" ? "(max-width: 640px) 80vw, 360px" : "160px"}
-      className={taille === "grand" ? "h-auto w-full max-w-[22rem]" : "h-11 w-auto sm:h-12"}
+      className={taille === "grand" ? "h-auto w-full max-w-[22rem]" : "h-12 w-auto sm:h-14"}
     />
   );
 }
