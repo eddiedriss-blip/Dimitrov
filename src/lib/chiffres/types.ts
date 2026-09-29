@@ -1,3 +1,5 @@
+import { UUID } from "@/lib/motifs";
+
 export type Repartition = { id: string; libelle: string; valeur: number }[];
 
 export type Statistiques = {
@@ -34,7 +36,7 @@ export function lireFiltres(params: Params, anneeCourante: number): FiltresChiff
   return {
     annee: Number.isInteger(annee) && annee >= 2000 && annee <= anneeCourante ? annee : anneeCourante,
     mois: Number.isInteger(mois) && mois >= 1 && mois <= 12 ? mois : null,
-    groupe: /^[0-9a-f-]{36}$/.test(groupe) ? groupe : null,
+    groupe: UUID.test(groupe) ? groupe : null,
     type: /^[A-Za-z0-9]{1,10}$/.test(type) ? type : null,
   };
 }

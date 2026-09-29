@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import { EnTeteColonne } from "@/components/EnTeteColonne";
 import { TitrePage } from "@/components/Page";
 import { Pagination } from "@/components/Pagination";
 import { estAdmin, getProfil } from "@/lib/auth/profil";
 import { formatDate, formatEtage, formatEuros, formatSurface } from "@/lib/format";
 import { chargerReferentiels, rechercherLogements } from "@/lib/logements/donnees";
-import { lireEtat, versUrl, type CleTri, type EtatListe } from "@/lib/logements/recherche";
+import { lireEtat, versUrl, type CleTri } from "@/lib/logements/recherche";
 import type { LigneLogement } from "@/lib/logements/types";
 import { FiltresArchives } from "./FiltresArchives";
 
@@ -26,24 +27,6 @@ const COLONNES: { tri?: CleTri; libelle: string; nombre?: boolean; cellule: (l: 
   { tri: "loue_le", libelle: "Loué le", cellule: (l) => formatDate(l.date_location) },
   { tri: "duree", libelle: "Vacance", nombre: true, cellule: (l) => (l.duree_derniere_vacance_jours === null ? "—" : `${l.duree_derniere_vacance_jours} j`) },
 ];
-
-function EnTete({ etat, tri, libelle, nombre, sticky }: { etat: EtatListe; tri: CleTri; libelle: string; nombre?: boolean; sticky?: boolean }) {
-  const actif = etat.tri === tri;
-  return (
-    <th
-      scope="col"
-      aria-sort={actif ? (etat.sens === "asc" ? "ascending" : "descending") : "none"}
-      className={`whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-600 ${nombre ? "text-right" : "text-left"} ${sticky ? "sticky left-0 z-10" : ""}`}
-    >
-      <Link href={`/archives${versUrl(etat, { tri, sens: actif && etat.sens === "asc" ? "desc" : "asc", page: 1 })}`} scroll={false} className={`inline-flex items-center gap-1 hover:text-slate-900 ${actif ? "text-primaire" : ""}`}>
-        {libelle}
-        <span aria-hidden="true" className={actif ? "" : "text-slate-300"}>
-          {actif ? (etat.sens === "asc" ? "▲" : "▼") : "↕"}
-        </span>
-      </Link>
-    </th>
-  );
-}
 
 export default async function PageArchives({ searchParams }: PageProps<"/archives">) {
   const etat = lireEtat(await searchParams);
@@ -76,15 +59,9 @@ export default async function PageArchives({ searchParams }: PageProps<"/archive
               <caption className="sr-only">Logements loués (archives)</caption>
               <thead>
                 <tr>
-                  <EnTete etat={etat} tri="esi" libelle="N° ESI" sticky />
+                  <EnTeteColonne etat={etat} chemin="/archives" tri="esi" libelle="N° ESI" sticky />
                   {COLONNES.map((c) => (
-                    c.tri ? (
-                      <EnTete key={c.libelle} etat={etat} tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
-                    ) : (
-                      <th key={c.libelle} scope="col" className={`whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-600 ${c.nombre ? "text-right" : "text-left"}`}>
-                        {c.libelle}
-                      </th>
-                    )
+                    <EnTeteColonne key={c.libelle} etat={etat} chemin="/archives" tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
                   ))}
                   <th scope="col" className="border-b border-slate-200 bg-slate-50 px-3 py-2.5">
                     <span className="sr-only">Actions</span>

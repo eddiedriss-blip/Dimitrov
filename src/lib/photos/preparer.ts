@@ -6,7 +6,7 @@
  * Les formats que le navigateur ne sait pas décoder (ex. HEIC hors Safari) sont refusés avec un message clair.
  */
 
-export const TAILLE_MAX_ORIGINAL = 25 * 1024 * 1024;
+const TAILLE_MAX_ORIGINAL = 25 * 1024 * 1024;
 const COTE_IMAGE = 1920;
 const COTE_MINIATURE = 480;
 

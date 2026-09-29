@@ -7,7 +7,7 @@ export type ElementMenu = {
   adminSeulement?: boolean;
 };
 
-export const MENU: ElementMenu[] = [
+const MENU: ElementMenu[] = [
   { href: "/", libelle: "Accueil" },
   { href: "/vacants", libelle: "Gestion des vacants" },
   { href: "/travaux", libelle: "Travaux des vacants" },

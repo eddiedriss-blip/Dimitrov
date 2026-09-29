@@ -7,7 +7,7 @@ export type SerieColonnes = { nom: string; classeCouleur: string; valeurs: (numb
 const nombre = new Intl.NumberFormat("fr-FR");
 
 /** Graduations « rondes » (1, 2, 5 × 10ⁿ), 5 au plus. */
-export function graduations(max: number): number[] {
+function graduations(max: number): number[] {
   if (max <= 0) return [0, 1];
   const brut = max / 4;
   const puissance = 10 ** Math.floor(Math.log10(brut));

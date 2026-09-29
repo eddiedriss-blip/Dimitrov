@@ -2,15 +2,13 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { BoutonsDialogue, Dialogue } from "@/components/Dialogue";
-import { Alerte } from "@/components/formulaire";
+import { Alerte, classeChampFormulaire } from "@/components/formulaire";
 import { envoyerSansReinitialiser } from "@/lib/formulaires";
 import { LISTES, type SlugListe } from "@/lib/parametres/listes";
 import { changerActivation, enregistrerValeur, supprimerValeur, type Resultat } from "../actions";
 
 export type LigneListe = { cle: string; actif: boolean; valeurs: Record<string, string>; usages: number };
 
-const classeChamp =
-  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm outline-none focus:border-primaire focus:ring-2 focus:ring-primaire/25 disabled:bg-slate-50 disabled:text-slate-500 aria-[invalid=true]:border-red-400 sm:text-sm";
 
 /** Ajouter / modifier / désactiver / supprimer (si jamais utilisée) les valeurs d'une liste déroulante. */
 export function GestionListe({ slug, lignes }: { slug: SlugListe; lignes: LigneListe[] }) {
@@ -230,7 +228,7 @@ function FormulaireValeur({ slug, ligne, onFermer }: { slug: SlugListe; ligne?: 
               value: valeurs[ch.nom] ?? "",
               disabled: fige,
               "aria-invalid": erreurs[ch.nom] ? true : undefined,
-              className: classeChamp,
+              className: classeChampFormulaire,
               onChange: (e: { target: { value: string } }) => setValeurs((v) => ({ ...v, [ch.nom]: e.target.value })),
             };
             return (

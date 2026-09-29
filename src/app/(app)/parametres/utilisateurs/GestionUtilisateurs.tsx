@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { BoutonsDialogue, Dialogue } from "@/components/Dialogue";
-import { Alerte } from "@/components/formulaire";
+import { Alerte, classeChampFormulaire } from "@/components/formulaire";
 import { envoyerSansReinitialiser } from "@/lib/formulaires";
 import { formatDate } from "@/lib/format";
 import { LIBELLES_ROLE } from "@/lib/navigation";
@@ -48,8 +48,6 @@ const TEXTES: Record<Confirmation["type"], { titre: string; texte: string; bouto
   },
 };
 
-const classeChamp =
-  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm outline-none focus:border-primaire focus:ring-2 focus:ring-primaire/25 aria-[invalid=true]:border-red-400 sm:text-sm";
 
 function Etat({ c }: { c: CompteUtilisateur }) {
   const [texte, style] = c.anonymise_le
@@ -245,7 +243,7 @@ function FormulaireCompte({ compte, soiMeme, onFermer }: { compte?: CompteUtilis
       <label htmlFor={`u-${cle}`} className="mb-1 block text-sm font-medium text-slate-700">
         {libelle} <span className="text-red-600">*</span>
       </label>
-      <input id={`u-${cle}`} name={cle} value={v[cle]} onChange={maj(cle)} aria-invalid={erreurs[cle] ? true : undefined} className={classeChamp} {...props} />
+      <input id={`u-${cle}`} name={cle} value={v[cle]} onChange={maj(cle)} aria-invalid={erreurs[cle] ? true : undefined} className={classeChampFormulaire} {...props} />
       {erreurs[cle] && <p className="mt-1 text-xs text-red-700">{erreurs[cle]}</p>}
     </div>
   );

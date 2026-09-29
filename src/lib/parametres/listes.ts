@@ -34,7 +34,7 @@ export type ConfigListe = {
   champs: Champ[];
 };
 
-export const CATEGORIES_RESERVATAIRE = [
+const CATEGORIES_RESERVATAIRE = [
   { valeur: "prefecture", libelle: "Préfecture" },
   { valeur: "action_logement", libelle: "Action Logement" },
   { valeur: "collectivite", libelle: "Collectivité" },

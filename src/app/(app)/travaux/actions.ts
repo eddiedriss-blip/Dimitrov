@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getProfil } from "@/lib/auth/profil";
+import { DATE, UUID } from "@/lib/motifs";
 import { createClient } from "@/lib/supabase/server";
 import { STATUTS_LOGEMENT } from "@/lib/logements/types";
 import { BUCKET_PHOTOS, NOUVELLE_ENTREPRISE, STATUTS_TRAVAIL } from "@/lib/travaux/types";
@@ -9,8 +10,6 @@ import { BUCKET_PHOTOS, NOUVELLE_ENTREPRISE, STATUTS_TRAVAIL } from "@/lib/trava
 export type Resultat = { erreur?: string; succes?: boolean };
 export type EtatTravail = { erreur?: string; erreursChamps?: Record<string, string>; ok?: number } | undefined;
 
-const UUID = /^[0-9a-f-]{36}$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function messageErreur(e: { code?: string; message?: string }): string {
   const m = e.message ?? "";

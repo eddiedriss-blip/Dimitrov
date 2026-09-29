@@ -5,14 +5,13 @@ import { redirect } from "next/navigation";
 import { getProfil } from "@/lib/auth/profil";
 import { cheminInterne } from "@/lib/auth/validation";
 import { FORMAT_ESI, normaliserEsi } from "@/lib/logements/esi";
+import { DATE, UUID } from "@/lib/motifs";
 import { createClient } from "@/lib/supabase/server";
 
 export type EtatEnregistrement =
   | { erreur?: string; champs?: Record<string, string>; erreursChamps?: Record<string, string> }
   | undefined;
 
-const UUID = /^[0-9a-f-]{36}$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const MESSAGE_FORMAT_ESI = "Format attendu : 5 chiffres, la lettre L, puis 4 chiffres (ex. 12345L0012).";
 
 /** Traduit les erreurs de la base en messages compréhensibles. */

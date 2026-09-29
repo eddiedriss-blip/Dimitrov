@@ -108,4 +108,4 @@ Variables d'environnement de l'hébergeur : voir `.env.example` (jamais la clé 
 
 ## Logo
 
-Le logo actuel est provisoire : remplacer `src/components/Logo.tsx` et `src/app/icon.svg` par ceux du bailleur.
+Logo « Secteur 1 » : `public/logo-secteur1.webp` (affiché par `src/components/Logo.tsx`) ; icône d'onglet : `src/app/icon.svg`. Couleurs dans `src/app/globals.css` (orange flamme + anthracite).

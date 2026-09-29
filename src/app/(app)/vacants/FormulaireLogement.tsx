@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { useActionState, useRef, useState, type ReactNode } from "react";
-import { Alerte } from "@/components/formulaire";
+import { Alerte, classeChampFormulaire } from "@/components/formulaire";
 import { formatEuros } from "@/lib/format";
 import { codeGroupeEsi, porteEsi } from "@/lib/logements/esi";
 import { avecEtat, STATUTS_LOGEMENT, type LigneLogement, type Referentiels } from "@/lib/logements/types";
 import { enregistrerLogement } from "./actions";
 
-const classeChamp =
-  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm outline-none focus:border-primaire focus:ring-2 focus:ring-primaire/25 aria-[invalid=true]:border-red-400 sm:text-sm";
 
 /** Valeurs initiales du formulaire (tous les champs en texte, comme dans le FormData). */
 function valeursInitiales(l?: LigneLogement | null): Record<string, string> {
@@ -97,7 +95,7 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
         defaultValue={v[nom]}
         aria-invalid={erreurs[nom] ? true : undefined}
         aria-describedby={erreurs[nom] ? `${nom}-erreur` : undefined}
-        className={classeChamp}
+        className={classeChampFormulaire}
         {...props}
       />
       {erreurs[nom] ? (
@@ -122,7 +120,7 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
         defaultValue={v[nom]}
         required={required}
         aria-invalid={erreurs[nom] ? true : undefined}
-        className={classeChamp}
+        className={classeChampFormulaire}
       >
         {vide !== null && <option value="">{vide}</option>}
         {options.map((o) => (
@@ -207,7 +205,7 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
           defaultValue={v.commentaire}
           rows={3}
           maxLength={2000}
-          className={classeChamp}
+          className={classeChampFormulaire}
         />
       </Section>
 

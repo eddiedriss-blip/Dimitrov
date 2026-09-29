@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { BadgeStatutLogement, BadgeStatutTravaux } from "@/components/Badges";
 import { formatDate, formatEtage, formatEuros, formatSurface } from "@/lib/format";
-import { versUrl, type CleTri, type EtatListe } from "@/lib/logements/recherche";
+import { type CleTri, type EtatListe } from "@/lib/logements/recherche";
 import type { LigneLogement } from "@/lib/logements/types";
 import { BoutonALouer } from "@/components/BoutonALouer";
+import { EnTeteColonne } from "@/components/EnTeteColonne";
 import { BoutonArchiver } from "./BoutonArchiver";
 
 type Colonne = {
@@ -56,38 +57,6 @@ const COLONNES: Colonne[] = [
   },
 ];
 
-function EnTeteFixe({ libelle, nombre }: { libelle: string; nombre?: boolean }) {
-  return (
-    <th scope="col" className={`whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-600 ${nombre ? "text-right" : "text-left"}`}>
-      {libelle}
-    </th>
-  );
-}
-
-function EnTeteTri({ etat, tri, libelle, nombre, sticky }: { etat: EtatListe; tri: CleTri; libelle: string; nombre?: boolean; sticky?: boolean }) {
-  const actif = etat.tri === tri;
-  const sens = actif && etat.sens === "asc" ? "desc" : "asc";
-  return (
-    <th
-      scope="col"
-      aria-sort={actif ? (etat.sens === "asc" ? "ascending" : "descending") : "none"}
-      className={`whitespace-nowrap border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-600 ${nombre ? "text-right" : "text-left"} ${sticky ? "sticky left-0 z-10" : ""}`}
-    >
-      <Link
-        href={`/vacants${versUrl(etat, { tri, sens, page: 1 })}`}
-        scroll={false}
-        className={`group inline-flex items-center gap-1 hover:text-slate-900 ${actif ? "text-primaire" : ""}`}
-        title={`Trier par ${libelle.toLowerCase()} (${sens === "asc" ? "croissant" : "décroissant"})`}
-      >
-        {libelle}
-        <span aria-hidden="true" className={actif ? "" : "text-slate-300 group-hover:text-slate-400"}>
-          {actif ? (etat.sens === "asc" ? "▲" : "▼") : "↕"}
-        </span>
-      </Link>
-    </th>
-  );
-}
-
 /** Page de consultation : Archives pour un logement loué. */
 const lienFiche = (l: LigneLogement) => (l.archive ? `/archives/${l.id}` : `/vacants/${l.id}`);
 
@@ -135,13 +104,9 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
           <caption className="sr-only">Logements vacants</caption>
           <thead>
             <tr>
-              <EnTeteTri etat={etat} tri="esi" libelle="N° ESI" sticky />
+              <EnTeteColonne etat={etat} chemin="/vacants" tri="esi" libelle="N° ESI" sticky />
               {COLONNES.map((c) => (
-                c.tri ? (
-                  <EnTeteTri key={c.libelle} etat={etat} tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
-                ) : (
-                  <EnTeteFixe key={c.libelle} libelle={c.libelle} nombre={c.nombre} />
-                )
+                <EnTeteColonne key={c.libelle} etat={etat} chemin="/vacants" tri={c.tri} libelle={c.libelle} nombre={c.nombre} />
               ))}
               <th scope="col" className="sticky right-0 z-10 border-b border-slate-200 bg-slate-50 px-3 py-2.5 text-right text-xs font-semibold text-slate-600">
                 Actions

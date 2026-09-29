@@ -3,7 +3,7 @@ import { BadgeStatutTravaux } from "@/components/Badges";
 import { formatDate, formatEtage, formatEuros, formatSurface } from "@/lib/format";
 import type { LigneLogement } from "@/lib/logements/types";
 
-export function Bloc({ titre, children }: { titre: string; children: ReactNode }) {
+function Bloc({ titre, children }: { titre: string; children: ReactNode }) {
   return (
     <section className="rounded-lg border border-slate-200">
       <h2 className="border-b border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-900">{titre}</h2>
@@ -12,7 +12,7 @@ export function Bloc({ titre, children }: { titre: string; children: ReactNode }
   );
 }
 
-export function Info({ libelle, children }: { libelle: string; children: ReactNode }) {
+function Info({ libelle, children }: { libelle: string; children: ReactNode }) {
   return (
     <div>
       <dt className="text-xs font-medium text-slate-500">{libelle}</dt>

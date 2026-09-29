@@ -1,15 +1,13 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
-import { Alerte } from "@/components/formulaire";
+import { Alerte, classeChampFormulaire } from "@/components/formulaire";
 import { Dialogue } from "@/components/Dialogue";
 import { envoyerSansReinitialiser } from "@/lib/formulaires";
 import { formatDate } from "@/lib/format";
 import { NOUVELLE_ENTREPRISE, STATUTS_TRAVAIL, type Entreprise, type Travail } from "@/lib/travaux/types";
 import { enregistrerTravail } from "@/app/(app)/travaux/actions";
 
-const classeChamp =
-  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm outline-none focus:border-primaire focus:ring-2 focus:ring-primaire/25 aria-[invalid=true]:border-red-400 sm:text-sm";
 
 /**
  * Ajout / modification d'un travail dans une fenêtre modale.
@@ -72,19 +70,19 @@ export function FormulaireTravail({
         {champ(
           "libelle",
           "Intitulé *",
-          <input id="t-libelle" name="libelle" value={v.libelle} onChange={maj("libelle")} maxLength={200} required autoFocus aria-invalid={!!erreurs.libelle || undefined} className={classeChamp} />,
+          <input id="t-libelle" name="libelle" value={v.libelle} onChange={maj("libelle")} maxLength={200} required autoFocus aria-invalid={!!erreurs.libelle || undefined} className={classeChampFormulaire} />,
         )}
         {champ(
           "description",
           "Commentaire",
-          <textarea id="t-description" name="description" value={v.description} onChange={maj("description")} rows={3} maxLength={2000} className={classeChamp} />,
+          <textarea id="t-description" name="description" value={v.description} onChange={maj("description")} rows={3} maxLength={2000} className={classeChampFormulaire} />,
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           {champ(
             "entreprise_id",
             "Entreprise",
-            <select id="t-entreprise_id" name="entreprise_id" value={v.entreprise_id} onChange={maj("entreprise_id")} aria-invalid={!!erreurs.entreprise_id || undefined} className={classeChamp}>
+            <select id="t-entreprise_id" name="entreprise_id" value={v.entreprise_id} onChange={maj("entreprise_id")} aria-invalid={!!erreurs.entreprise_id || undefined} className={classeChampFormulaire}>
               <option value="">Non attribuée</option>
               {entreprises.map((e) => (
                 <option key={e.id} value={e.id}>
@@ -100,7 +98,7 @@ export function FormulaireTravail({
           {champ(
             "statut_code",
             "Statut",
-            <select id="t-statut_code" name="statut_code" value={v.statut_code} onChange={maj("statut_code")} className={classeChamp}>
+            <select id="t-statut_code" name="statut_code" value={v.statut_code} onChange={maj("statut_code")} className={classeChampFormulaire}>
               {STATUTS_TRAVAIL.map((s) => (
                 <option key={s.code} value={s.code}>
                   {s.libelle}
@@ -114,7 +112,7 @@ export function FormulaireTravail({
           champ(
             "nouvelle_entreprise",
             "Nom de la nouvelle entreprise *",
-            <input id="t-nouvelle_entreprise" name="nouvelle_entreprise" value={v.nouvelle_entreprise} onChange={maj("nouvelle_entreprise")} maxLength={200} aria-invalid={!!erreurs.nouvelle_entreprise || undefined} className={classeChamp} />,
+            <input id="t-nouvelle_entreprise" name="nouvelle_entreprise" value={v.nouvelle_entreprise} onChange={maj("nouvelle_entreprise")} maxLength={200} aria-invalid={!!erreurs.nouvelle_entreprise || undefined} className={classeChampFormulaire} />,
             "Elle sera ajoutée à la liste des entreprises.",
           )}
 
@@ -122,19 +120,19 @@ export function FormulaireTravail({
           {champ(
             "date_commande",
             "Commandé le",
-            <input id="t-date_commande" name="date_commande" type="date" value={v.date_commande} onChange={maj("date_commande")} className={classeChamp} />,
+            <input id="t-date_commande" name="date_commande" type="date" value={v.date_commande} onChange={maj("date_commande")} className={classeChampFormulaire} />,
             "Automatique au passage à « Commandé »",
           )}
           {champ(
             "date_fin_reelle",
             "Fini le",
-            <input id="t-date_fin_reelle" name="date_fin_reelle" type="date" value={v.date_fin_reelle} onChange={maj("date_fin_reelle")} className={classeChamp} />,
+            <input id="t-date_fin_reelle" name="date_fin_reelle" type="date" value={v.date_fin_reelle} onChange={maj("date_fin_reelle")} className={classeChampFormulaire} />,
             "Automatique au passage à « Fini »",
           )}
           {champ(
             "montant_commande_ht",
             "Montant HT (€)",
-            <input id="t-montant_commande_ht" name="montant_commande_ht" type="number" min={0} step="0.01" inputMode="decimal" value={v.montant_commande_ht} onChange={maj("montant_commande_ht")} className={classeChamp} />,
+            <input id="t-montant_commande_ht" name="montant_commande_ht" type="number" min={0} step="0.01" inputMode="decimal" value={v.montant_commande_ht} onChange={maj("montant_commande_ht")} className={classeChampFormulaire} />,
             "Facultatif (servira aux Chiffres)",
           )}
         </div>

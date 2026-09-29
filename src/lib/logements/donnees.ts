@@ -1,4 +1,5 @@
 import "server-only";
+import { UUID } from "@/lib/motifs";
 import { createClient } from "@/lib/supabase/server";
 import { filtresSql, TRIS, type EtatListe } from "./recherche";
 import type { LigneLogement, Referentiels, ResultatRecherche } from "./types";
@@ -36,7 +37,7 @@ export async function chargerReferentiels(): Promise<Referentiels> {
 }
 
 export async function getLogement(id: string): Promise<LigneLogement | null> {
-  if (!/^[0-9a-f-]{36}$/.test(id)) return null;
+  if (!UUID.test(id)) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.from("v_logements").select("*").eq("id", id).maybeSingle<LigneLogement>();
   if (error) throw new Error(`Lecture du logement impossible : ${error.message}`);

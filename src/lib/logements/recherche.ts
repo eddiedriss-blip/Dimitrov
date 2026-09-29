@@ -3,7 +3,7 @@
  * L'URL est la source de vérité : la liste est partageable et le bouton « Retour » fonctionne.
  */
 
-export const TAILLES_PAGE = [25, 50, 100] as const;
+const TAILLES_PAGE = [25, 50, 100] as const;
 /** Grilles de cartes : multiples de 2, 3 et 4 colonnes. */
 export const TAILLES_CARTES = [24, 48, 96] as const;
 

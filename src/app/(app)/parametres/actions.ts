@@ -4,12 +4,12 @@ import { revalidatePath } from "next/cache";
 import { getProfil } from "@/lib/auth/profil";
 import { LISTES, type SlugListe } from "@/lib/parametres/listes";
 import { clientAdministration } from "@/lib/supabase/admin";
+import { UUID } from "@/lib/motifs";
 import { createClient } from "@/lib/supabase/server";
 
 export type Resultat = { erreur?: string; succes?: string };
 export type EtatFormulaire = { erreur?: string; erreursChamps?: Record<string, string>; ok?: number } | undefined;
 
-const UUID = /^[0-9a-f-]{36}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /** Toutes les actions des Paramètres exigent un administrateur (la base le vérifie aussi). */
