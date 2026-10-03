@@ -9,12 +9,12 @@ export type ElementMenu = {
 
 const MENU: ElementMenu[] = [
   { href: "/", libelle: "Accueil" },
-  { href: "/telephone", libelle: "Téléphone" },
   { href: "/vacants", libelle: "Gestion des vacants" },
   { href: "/travaux", libelle: "Travaux des vacants" },
   { href: "/chiffres", libelle: "Chiffres" },
   { href: "/archives", libelle: "Archives" },
   { href: "/parametres", libelle: "Paramètres", adminSeulement: true },
+  { href: "/telephone", libelle: "Téléphone" },
 ];
 
 export const menuPourRole = (role: Role) => MENU.filter((e) => !e.adminSeulement || role === "admin");
