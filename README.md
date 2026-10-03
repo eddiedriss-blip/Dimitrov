@@ -41,6 +41,11 @@ Les droits sont appliqués à trois niveaux : le menu, la page (vérification c�
 - Progression = travaux finis / total. **Statut du logement automatique** (migration `…_fiches_travaux.sql`) : au moins un « À commander » → Travaux à faire ; sinon un « Commandé » → Travaux commandés ; tous finis → Travaux finis. « À louer » et « Loué » ne sont jamais écrasés. Modification manuelle possible avec confirmation.
 - Photos : envoi multiple (bouton ou glisser-déposer), redimensionnées dans le navigateur (1920 px + miniature 480 px, JPEG), bucket privé `photos-logements` (liens temporaires d'1 h), galerie plein écran (flèches, clavier, glisser), légende, suppression. Chemins : `{logement}/{vacance}/{fichier}.jpg`.
 
+## Téléphone (`/telephone`)
+
+- Écran pensé pour le terrain : rechercher un logement (N° ESI, ancien locataire) ou en créer un, puis **prendre des photos** (appareil photo ou galerie), compléter les travaux et les infos du logement.
+- Réutilise l'envoi des photos (`useEnvoiPhotos`), la liste des travaux et le formulaire logement (`vue="telephone"` : retour à cet écran après l'enregistrement).
+
 ## Archives (`/archives`) et historique
 
 - **Passer à louer** : bouton visible uniquement au statut « Travaux finis » (fiche logement, fiche travaux, tableau), avec confirmation.
