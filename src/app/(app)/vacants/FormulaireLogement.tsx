@@ -34,7 +34,17 @@ function valeursInitiales(l?: LigneLogement | null): Record<string, string> {
   };
 }
 
-export function FormulaireLogement({ logement, referentiels }: { logement?: LigneLogement | null; referentiels: Referentiels }) {
+export function FormulaireLogement({
+  logement,
+  referentiels,
+  vue,
+}: {
+  logement?: LigneLogement | null;
+  referentiels: Referentiels;
+  /** « telephone » : retour à l'écran Téléphone après l'enregistrement. */
+  vue?: "telephone";
+}) {
+  const accueil = vue === "telephone" ? "/telephone" : "/vacants";
   const [etat, action, enCours] = useActionState(enregistrerLogement, undefined);
   const initiales = valeursInitiales(logement);
   const v = etat?.champs ?? initiales;
@@ -136,6 +146,7 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
   return (
     <form key={version} ref={formulaire} action={action} onSubmit={surEnvoi} noValidate className="space-y-8">
       {logement && <input type="hidden" name="id" value={logement.id} />}
+      {vue && <input type="hidden" name="vue" value={vue} />}
       {etat?.erreur && <Alerte type="erreur">{etat.erreur}</Alerte>}
 
       <Section titre="Logement">
@@ -211,7 +222,7 @@ export function FormulaireLogement({ logement, referentiels }: { logement?: Lign
 
       <div className="flex flex-col-reverse gap-2 border-t border-slate-200 pt-4 sm:flex-row sm:justify-end">
         <Link
-          href={logement ? `/vacants/${logement.id}` : "/vacants"}
+          href={logement ? `${accueil}/${logement.id}` : accueil}
           className="rounded-md border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           Annuler

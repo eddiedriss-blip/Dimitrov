@@ -9,6 +9,7 @@ export type ElementMenu = {
 
 const MENU: ElementMenu[] = [
   { href: "/", libelle: "Accueil" },
+  { href: "/telephone", libelle: "Téléphone" },
   { href: "/vacants", libelle: "Gestion des vacants" },
   { href: "/travaux", libelle: "Travaux des vacants" },
   { href: "/chiffres", libelle: "Chiffres" },

@@ -109,7 +109,7 @@ export async function enregistrerLogement(_etat: EtatEnregistrement, formData: F
   revalidatePath("/vacants");
   revalidatePath("/archives");
   // Un logement qui reste (ou devient) « Loué » est affiché dans les Archives.
-  const fiche = logement.statut_code === "loue" ? "/archives" : "/vacants";
+  const fiche = logement.statut_code === "loue" ? "/archives" : champs.vue === "telephone" ? "/telephone" : "/vacants";
   redirect(`${fiche}/${data as string}?info=${id ? "modifie" : "cree"}`);
 }
 
