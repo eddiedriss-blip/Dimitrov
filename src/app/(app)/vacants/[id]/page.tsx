@@ -6,8 +6,10 @@ import { BoutonALouer } from "@/components/BoutonALouer";
 import { DetailsLogement } from "@/components/DetailsLogement";
 import { Alerte } from "@/components/formulaire";
 import { Historique } from "@/components/Historique";
+import { Photos } from "@/components/travaux/Photos";
 import { getEvenements } from "@/lib/historique/donnees";
 import { getLogement } from "@/lib/logements/donnees";
+import { getFicheTravaux } from "@/lib/travaux/donnees";
 import { BoutonArchiver } from "../BoutonArchiver";
 
 export async function generateMetadata({ params }: PageProps<"/vacants/[id]">): Promise<Metadata> {
@@ -22,8 +24,9 @@ const MESSAGES: Record<string, string> = {
 
 export default async function PageLogement({ params, searchParams }: PageProps<"/vacants/[id]">) {
   const [{ id }, { info }] = await Promise.all([params, searchParams]);
-  const l = await getLogement(id);
-  if (!l) notFound();
+  const fiche = await getFicheTravaux(id);
+  if (!fiche) notFound();
+  const { logement: l, photos } = fiche;
   // Un logement loué est « déplacé » dans les Archives (consultation seule).
   if (l.archive) redirect(`/archives/${l.id}${info ? "?info=archive" : ""}`);
 
@@ -73,6 +76,10 @@ export default async function PageLogement({ params, searchParams }: PageProps<"
 
       <div className="space-y-6">
         <DetailsLogement l={l} />
+        {/* Photos de la vacance en cours (ajout et légendes : depuis la fiche travaux) */}
+        {photos.length > 0 && l.derniere_vacance_id && (
+          <Photos photos={photos} logementId={l.id} vacanceId={l.derniere_vacance_id} lectureSeule />
+        )}
         <Historique evenements={evenements} />
       </div>
     </>
