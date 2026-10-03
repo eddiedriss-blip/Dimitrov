@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { BadgeStatutLogement, BadgeStatutTravaux } from "@/components/Badges";
 import { formatDate, formatEtage, formatEuros, formatSurface } from "@/lib/format";
 import { type CleTri, type EtatListe } from "@/lib/logements/recherche";
-import type { LigneLogement } from "@/lib/logements/types";
+import type { CodeStatutLogement, LigneLogement } from "@/lib/logements/types";
 import { BoutonALouer } from "@/components/BoutonALouer";
 import { EnTeteColonne } from "@/components/EnTeteColonne";
 import { BoutonArchiver } from "./BoutonArchiver";
@@ -15,6 +15,15 @@ type Colonne = {
   nombre?: boolean;
   cellule: (l: LigneLogement) => ReactNode;
 };
+
+/** Fond de ligne selon le statut du logement (classes complètes pour Tailwind). Autres statuts : blanc. */
+const FONDS: Partial<Record<CodeStatutLogement, { fond: string; lisere: string }>> = {
+  vacant_technique: { fond: "bg-red-100 group-hover:bg-red-200", lisere: "border-l-red-500" },
+  travaux_a_faire: { fond: "bg-orange-100 group-hover:bg-orange-200", lisere: "border-l-orange-500" },
+  travaux_commandes: { fond: "bg-yellow-100 group-hover:bg-yellow-200", lisere: "border-l-yellow-500" },
+  travaux_finis: { fond: "bg-green-100 group-hover:bg-green-200", lisere: "border-l-green-600" },
+};
+const fondLigne = (l: LigneLogement) => FONDS[l.statut_code] ?? { fond: "bg-white group-hover:bg-slate-50", lisere: "border-l-transparent" };
 
 const COLONNES: Colonne[] = [
   { libelle: "Porte", nombre: true, cellule: (l) => l.porte ?? "—" },
@@ -118,7 +127,7 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
               <tr key={l.id} className="group">
                 <th
                   scope="row"
-                  className="sticky left-0 whitespace-nowrap border-b border-slate-100 bg-white px-3 py-2 text-left font-semibold text-slate-900 group-hover:bg-slate-50"
+                  className={`sticky left-0 whitespace-nowrap border-b border-l-4 border-b-white/70 px-3 py-2 text-left font-semibold text-slate-900 ${fondLigne(l).fond} ${fondLigne(l).lisere}`}
                 >
                   <Link href={lienFiche(l)} className="hover:text-primaire hover:underline">
                     {l.numero_esi}
@@ -127,12 +136,12 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
                 {COLONNES.map((c) => (
                   <td
                     key={c.libelle}
-                    className={`whitespace-nowrap border-b border-slate-100 px-3 py-2 text-slate-700 group-hover:bg-slate-50 ${c.nombre ? "text-right tabular-nums" : ""}`}
+                    className={`whitespace-nowrap border-b border-white/70 px-3 py-2 text-slate-700 ${fondLigne(l).fond} ${c.nombre ? "text-right tabular-nums" : ""}`}
                   >
                     {c.cellule(l)}
                   </td>
                 ))}
-                <td className="sticky right-0 whitespace-nowrap border-b border-l border-slate-100 bg-white px-2 py-1.5 group-hover:bg-slate-50">
+                <td className={`sticky right-0 whitespace-nowrap border-b border-l border-white/70 px-2 py-1.5 ${fondLigne(l).fond}`}>
                   <Actions l={l} />
                 </td>
               </tr>
@@ -144,7 +153,7 @@ export function TableauVacants({ lignes, etat }: { lignes: LigneLogement[]; etat
       {/* Téléphone */}
       <ul className="space-y-3 md:hidden">
         {lignes.map((l) => (
-          <li key={l.id} className="rounded-lg border border-slate-200 p-4">
+          <li key={l.id} className={`group rounded-lg border border-l-4 border-slate-200 p-4 ${fondLigne(l).fond} ${fondLigne(l).lisere}`}>
             <div className="flex items-start justify-between gap-3">
               <Link href={lienFiche(l)} className="font-semibold text-slate-900 hover:text-primaire">
                 {l.numero_esi}
